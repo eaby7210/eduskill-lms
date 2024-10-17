@@ -1,0 +1,30 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+django-debug-toolbar = "*"
+psycopg2 = "*"
+djangorestframework = "*"
+django-filter = "*"
+djangorestframework-simplejwt = "*"
+django-cors-headers = "*"
+dj-rest-auth = "*"
+pillow = "*"
+django-allauth = {extras = ["google"], version = "*"}
+requests = "*"
+cryptography = "*"
+django-autoslug = "*"
+django-ordered-model = "*"
+drf-nested-routers = "*"
+django-extensions = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
+
+[scripts]
+dev = "python manage.py runserver"
