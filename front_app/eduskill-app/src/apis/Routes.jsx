@@ -26,7 +26,7 @@ import { getCourses, getUsers } from "./services/apiAdmin.js";
 const Home = lazy(() => import("../pages/Home.jsx"));
 const Login = lazy(() => import("../pages/Login.jsx"));
 const Signup = lazy(() => import("../pages/Signup.jsx"));
-const UserProfile = lazy(() => import("../pages/Profile.jsx"));
+const UserProfile = lazy(() => import("../pages/UserPage.jsx"));
 const CourseList = lazy(() => import("../pages/Course_List.jsx"));
 
 const Dashboard = lazy(() => import("../assets/admin/dashboard.jsx"));
@@ -65,13 +65,42 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/profile",
+        path: "/user",
         element: (
           <Suspense fallback={<span>Loading...</span>}>
             <UserProfile />
           </Suspense>
         ),
-        errorElement: <Error />,
+        children: [
+          {
+            path: "",
+            lazy: () => import("../assets/UserDashboard.jsx"),
+          },
+          {
+            path: "mylearning",
+            lazy: () => import("../assets/MyLearning.jsx"),
+          },
+          {
+            path: "wishlist",
+            lazy: () => import("../assets/Wishlist.jsx"),
+          },
+          {
+            path: "cart",
+            lazy: () => import("../assets/Cart.jsx"),
+          },
+          {
+            path: "cart",
+            lazy: () => import("../assets/Cart.jsx"),
+          },
+          {
+            path: "orders",
+            lazy: () => import("../assets/PurchaseHistory.jsx"),
+          },
+          {
+            path: "settings",
+            lazy: () => import("../assets/UserSettings.jsx"),
+          },
+        ],
       },
       {
         path: "/courses",

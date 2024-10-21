@@ -18,9 +18,9 @@ class Teacher(models.Model):
         to=settings.AUTH_USER_MODEL,
         verbose_name="Teacher Profile",
         related_query_name="teacher"
-        )
-    bio = models.TextField(blank=True)
-    qualifications = models.TextField(blank=True)
+    )
+    bio = models.TextField(blank=True, null=True)
+    qualifications = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_verified = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -38,11 +38,11 @@ class Category(OrderedModel):
         db_index=True,
         on_delete=models.SET_NULL,
         related_name='subcategories'
-        )
+    )
     name = models.CharField(max_length=255, unique=True)
     slug = AutoSlugField(
         populate_from="name", max_length=50, unique=True, always_update=True
-        )
+    )
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -75,29 +75,29 @@ class Course(models.Model):
         on_delete=models.CASCADE,
         related_name='courses',
         db_index=True
-        )
+    )
     title = models.CharField(max_length=255)
     slug = AutoSlugField(
         populate_from='title', max_length=50, unique=True,
         db_index=True
-        )
+    )
     description = models.TextField(null=True, blank=True)
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL,
         null=True,
         db_index=True
-        )
+    )
     # Content and structure
     syllabus = models.TextField(blank=True)
     duration = models.PositiveIntegerField(
         null=True, blank=True,
         help_text="Duration in hours",
         validators=[MinValueValidator(1)]
-        )
+    )
     # Enrollment and pricing
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[
-            MinValueValidator(0.00)
-        ])
+        MinValueValidator(0.00)
+    ])
     discount_percent = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -108,7 +108,7 @@ class Course(models.Model):
         ])  # check price is non-zero
     course_thumbnail = models.ImageField(
         upload_to='course_thumbnails/', blank=True, null=True
-        )
+    )
     # Status and tracking
     status = models.CharField(
         max_length=20,
@@ -119,7 +119,7 @@ class Course(models.Model):
     is_active = models.BooleanField(default=False, db_index=True)
     published_at = models.DateTimeField(
         null=True, blank=True
-        )
+    )
     last_updated = models.DateTimeField(auto_now=True)
     # Additional info
     requirements = models.TextField(blank=True, null=True)
@@ -152,26 +152,26 @@ class Course(models.Model):
 
             # Enforce status transition rules
             if previous_status == (
-                self.DRAFT and self.status not in [
-                    self.DRAFT, self.PENDING_APPROVAL
+                    self.DRAFT and self.status not in [
+                        self.DRAFT, self.PENDING_APPROVAL
                     ]):
                 raise ValidationError(
                     "You can only move from 'Draft' to 'Pending Approval'."
-                    )
+                )
             if previous_status == (
-                self.PENDING_APPROVAL and self.status not in [
-                    self.PENDING_APPROVAL, self.PUBLISHED
+                    self.PENDING_APPROVAL and self.status not in [
+                        self.PENDING_APPROVAL, self.PUBLISHED
                     ]):
                 raise ValidationError(
                     "You can only move from 'Pending Approval' to 'Published'."
-                    )
+                )
             if previous_status == (
                 self.PUBLISHED and self.status != self.PUBLISHED
-                    ):
+            ):
                 raise ValidationError(
                     "A 'Published' course cannot be\
                         reverted to any previous state."
-                    )
+                )
 
     def save(self, *args, **kwargs):
 
@@ -202,14 +202,14 @@ class Resource(models.Model):
     resource_type = models.CharField(max_length=10, choices=RESOURCE_TYPES)
     file = models.FileField(
         upload_to='resources/files/', blank=True, null=True
-        )
+    )
     link = models.URLField(blank=True, null=True)
 
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE,
         related_name='resources',
         blank=True, null=True
-        )
+    )
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -222,7 +222,7 @@ class Resource(models.Model):
 class Module(OrderedModel):
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="modules"
-        )
+    )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     # order = models.PositiveIntegerField(
@@ -231,11 +231,11 @@ class Module(OrderedModel):
     # on the number of modules
     duration = models.DurationField(
         null=True, blank=True
-        )  # module duration can't be longer than the total course duration.
+    )  # module duration can't be longer than the total course duration.
     is_active = models.BooleanField(default=True)
     resources = models.ManyToManyField(
         Resource, blank=True, related_name="modules"
-        )  # Resource model should linked and validated
+    )  # Resource model should linked and validated
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     # index for views_count and courses_count
@@ -256,19 +256,19 @@ class Lesson(OrderedModel):
     lesson_type = models.CharField(max_length=10, choices=LESSON_TYPES)
     duration = models.DurationField(
         blank=True, null=True
-        )  # Duration of video lessons
+    )  # Duration of video lessons
     # order = models.PositiveIntegerField(
     #     blank=True, null=True, default=0
     #     )  # For ordering lessons within a module
     module = models.ForeignKey(
         Module, on_delete=models.CASCADE, related_name='lessons'
-        )
+    )
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     resources = models.FileField(
         upload_to='lessons/resources/', blank=True, null=True
-        )
+    )
     is_free = models.BooleanField(default=False)
     order_with_respect_to = 'module'
 
@@ -281,17 +281,17 @@ class Lesson(OrderedModel):
         if self.lesson_type == 'video' and not hasattr(self, 'video_content'):
             raise ValidationError(
                 "Video content is missing for a video lesson."
-                )
+            )
         if hasattr(self, 'text_content') and hasattr(self, 'video_content'):
             raise ValidationError(
                 "A lesson cannot have both text and video content."
-                )
+            )
 
 
 class TextContent(models.Model):
     lesson = models.OneToOneField(
         Lesson, on_delete=models.CASCADE, related_name='text_content'
-        )
+    )
     content = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -301,10 +301,10 @@ class TextContent(models.Model):
 class VideoContent(models.Model):
     lesson = models.OneToOneField(
         Lesson, on_delete=models.CASCADE, related_name='video_content'
-        )
+    )
     video_file = models.FileField(
         upload_to='lessons/videos/', blank=True, null=True
-        )
+    )
 
     def __str__(self):
         return f"Video content for {self.lesson.title}"
@@ -313,16 +313,16 @@ class VideoContent(models.Model):
 class Review(models.Model):
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="course_reviews"
-        )
+    )
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="user_reviews"
-        )
+    )
     rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
     comment = models.TextField(
         blank=True, null=True
-        )
+    )
     review_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     helpful_count = models.PositiveIntegerField(default=0)

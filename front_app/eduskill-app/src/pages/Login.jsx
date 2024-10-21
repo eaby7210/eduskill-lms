@@ -37,6 +37,9 @@ const Login = () => {
   }
   return (
     <section className="grid justify-items-center my-9">
+      <h1 className="text-center text-primary font-bold text-4xl py-2">
+        Login
+      </h1>
       <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
         <form className="card-body">
           <div className="form-control">

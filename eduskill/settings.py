@@ -160,8 +160,11 @@ REST_AUTH = {
     # 'JWT_AUTH_COOKIE': 'access_token',
     # 'JWT_AUTH_COOKIE_USE_CSRF': True,
     # 'JWT_AUTH_REFRESH_COOKIE': 'refresh_token',
-    'USER_DETAILS_SERIALIZER': 'core.serializers.UserSerializer',
+    'PASSWORD_CHANGE_SERIALIZER':
+        'core.serializers.CustomPasswordChangeSeralizer',
     'REGISTER_SERIALIZER': 'core.serializers.UserRegisterSerializer',
+    'USER_DETAILS_SERIALIZER': 'core.serializers.UserSerializer',
+
 
 }
 

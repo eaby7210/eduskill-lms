@@ -3,7 +3,7 @@ from .models import (
     Teacher, Category, Course,
     Resource, Module, Lesson,
     TextContent, VideoContent, Review
-    )
+)
 
 
 class TeacherSerializer(serializers.ModelSerializer):
@@ -14,7 +14,16 @@ class TeacherSerializer(serializers.ModelSerializer):
             'id', 'user', 'bio', 'qualifications',
             'is_active', 'is_verified', 'created_at',
             'updated_at'
-            ]
+        ]
+
+
+class TeacherUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Teacher
+        fields = [
+            'id', 'bio', 'qualifications'
+        ]
 
 
 class CategoryListSerializer(serializers.ModelSerializer):
@@ -26,13 +35,13 @@ class CategoryListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'slug',
             'subcategories'
-            ]
+        ]
 
     def get_subcategories(self, obj):
         if obj.subcategories.exists():
             return CategoryListSerializer(
                 obj.subcategories.all(), many=True
-                ).data
+            ).data
         return []
 
 
@@ -46,7 +55,7 @@ class CategorySerializer(serializers.ModelSerializer):
             'id', 'name', 'slug', 'description', 'is_active',
             'parent',
             # 'subcategories'
-            ]
+        ]
 
 
 class CourseListSerializer(serializers.ModelSerializer):
@@ -54,7 +63,7 @@ class CourseListSerializer(serializers.ModelSerializer):
     teacher_name = serializers.CharField(
         source='teacher.user.username',
         read_only=True
-        )
+    )
     affected_price = serializers.SerializerMethodField()
 
     class Meta:
@@ -64,7 +73,7 @@ class CourseListSerializer(serializers.ModelSerializer):
             'price', 'discount_percent', 'duration',
             'course_thumbnail', 'category', 'status',
             'teacher_name', 'affected_price'
-            ]
+        ]
 
     def get_affected_price(self, obj):
         if obj.discount_percent:
@@ -77,7 +86,7 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = [
-                  'id', 'teacher', 'title', 'slug',
+            'id', 'teacher', 'title', 'slug',
                   'description', 'category', 'syllabus',
                   'duration', 'price', 'discount_percent',
                   #   'enrollment_limit',
@@ -86,7 +95,7 @@ class CourseSerializer(serializers.ModelSerializer):
                   'requirements', 'learning_objectives',
                   'target_audience', 'completion_certificate',
                   'created_at', 'updated_at', 'popularity_score'
-                  ]
+        ]
         read_only_fields = [
             'id', 'slug', 'is_published',
             'published_at', 'last_updated', 'created_at',
@@ -102,7 +111,7 @@ class ResourceSerializer(serializers.ModelSerializer):
             'resource_type', 'file', 'link',
             'course', 'created_at',
             'updated_at', 'is_active'
-            ]
+        ]
 
 
 class LessonListSeraiLizer(serializers.ModelSerializer):
@@ -122,7 +131,7 @@ class ModuleListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title',
             'order', 'duration', 'is_active', 'lessons'
-            ]
+        ]
 
 
 class CourseRetrivalSerializer(serializers.ModelSerializer):
@@ -131,7 +140,7 @@ class CourseRetrivalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = [
-                  'id', 'title', 'slug',
+            'id', 'title', 'slug',
                   'description', 'category', 'syllabus',
                   'duration', 'price', 'discount_percent',
                   #   'enrollment_limit',
@@ -140,7 +149,7 @@ class CourseRetrivalSerializer(serializers.ModelSerializer):
                   'requirements', 'learning_objectives',
                   'target_audience', 'completion_certificate',
                   'created_at', 'updated_at', 'popularity_score', 'modules'
-                  ]
+        ]
         read_only_fields = [
             'id', 'slug', 'is_published',
             'published_at', 'last_updated', 'created_at',
@@ -196,14 +205,14 @@ class LessonSerializer(serializers.ModelSerializer):
                 {
                     "text_content":
                         "Text content is required for text lessons."
-                    }
+                }
             )
         if lesson_type == 'video' and not video_content['video_file']:
             raise serializers.ValidationError(
                 {
                     "video_content":
                         "Video content is required for video lessons."
-                    }
+                }
             )
         if text_content['content'] and video_content['video_file']:
             print([text_content, video_content])
@@ -222,7 +231,7 @@ class LessonSerializer(serializers.ModelSerializer):
         # Handle content creation
         self._handle_content_creation(
             lesson, text_content_data, video_content_data
-            )
+        )
 
         return lesson
 
@@ -238,25 +247,24 @@ class LessonSerializer(serializers.ModelSerializer):
         # Handle content update
         self._handle_content_creation(
             instance, text_content_data, video_content_data
-            )
+        )
 
         return instance
 
     def _handle_content_creation(
-            self, lesson, text_content_data=None, video_content_data=None
-                ):
-
+        self, lesson, text_content_data=None, video_content_data=None
+    ):
         """
         Helper function to create or update content depending on lesson type.
         """
         if lesson.lesson_type == 'text' and text_content_data:
             TextContent.objects.update_or_create(
                 lesson=lesson, defaults=text_content_data
-                )
+            )
         elif lesson.lesson_type == 'video' and video_content_data:
             VideoContent.objects.update_or_create(
                 lesson=lesson, defaults=video_content_data
-                )
+            )
 
 
 class ReviewSerializer(serializers.ModelSerializer):
