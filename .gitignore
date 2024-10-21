@@ -10,7 +10,7 @@ __pycache__/
 *.pyd
 *.so
 
-
+git
 .venv/
 
 *.sqlite3
