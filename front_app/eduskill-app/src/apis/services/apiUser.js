@@ -47,7 +47,6 @@ export async function Categorylist() {
 
     return res.data;
   } catch (error) {
-    console.log(error);
     const er = error.response.data ? error.response.data : "Error Occured";
     throw er;
     // return { status: error.response.status, res: error.response.data };
@@ -57,5 +56,6 @@ export async function Categorylist() {
 export async function InitialLoad() {
   const category = await Categorylist();
   const user = await getUser();
-  return { category, user };
+  const res = { category, user };
+  return res;
 }

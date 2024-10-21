@@ -1,4 +1,6 @@
-from dj_rest_auth.serializers import UserDetailsSerializer
+from dj_rest_auth.serializers import (
+    UserDetailsSerializer, PasswordChangeSerializer
+)
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from tutor.serializers import TeacherSerializer
 from students.serializers import StudentSerializer
@@ -6,6 +8,7 @@ from django.apps import apps
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 User = get_user_model()
+print("serializer")
 
 
 class UserSerializer(UserDetailsSerializer):
@@ -17,7 +20,7 @@ class UserSerializer(UserDetailsSerializer):
         fields = UserDetailsSerializer.Meta.fields + (
             'role', 'image', 'is_active', 'is_superuser',
             'teacher_profile', 'student_profile',
-            )
+        )
         read_only_fields = UserDetailsSerializer.Meta.read_only_fields + (
             'is_active', 'is_superuser', 'role'
         )
@@ -44,23 +47,30 @@ class UserSerializer(UserDetailsSerializer):
 class UserRegisterSerializer(RegisterSerializer):
     first_name = serializers.CharField(write_only=True)
     last_name = serializers.CharField(write_only=True)
-    role = serializers.ChoiceField(choices=User.Role.choices)
+    # role = serializers.ChoiceField(choices=User.Role.choices)
 
     def get_cleaned_data(self):
         data = super().get_cleaned_data()
         data['first_name'] = self.validated_data.get('first_name', '')
         data['last_name'] = self.validated_data.get('last_name', '')
-        data['role'] = self.validated_data.get('role', User.Role.STUDENT)
+        # data['role'] = self.validated_data.get('role', User.Role.STUDENT)
         return data
 
     def custom_signup(self, request, user):
         # print(request.data)
         user.first_name = self.cleaned_data.get('first_name')
         user.last_name = self.cleaned_data.get('last_name')
-        user.role = self.cleaned_data.get('role')
+        # user.role = self.cleaned_data.get('role')
         # print(user.first_name)
         # print(user.last_name)
         user.save()
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'username', 'image']
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -86,3 +96,13 @@ class UserListSerializer(serializers.ModelSerializer):
     #         return TeacherSerializer(teacher).data
     #     except Teacher.DoesNotExist:
     #         return None
+
+
+class CustomPasswordChangeSeralizer(PasswordChangeSerializer):
+    current_password = serializers.CharField(required=True)
+
+    def validate_current_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("Current password is incorrect.")
+        return value

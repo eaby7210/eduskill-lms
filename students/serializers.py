@@ -10,10 +10,19 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = [
-            'id', 'bio', 'is_active',
+            'id', 'bio',
             'is_verified', 'created_at',
             'updated_at'
-            ]
+        ]
+
+
+class StudentUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Student
+        fields = [
+            'id', 'bio',
+        ]
 
 
 class CartItemListSerializer(serializers.ModelSerializer):
@@ -45,7 +54,7 @@ class CartItemSerializer(serializers.ModelSerializer):
         if not Course.objects.filter(id=value.id).exists():
             raise serializers.ValidationError(
                 "The selected course does not exist."
-                )
+            )
         return value
 
 
@@ -62,5 +71,5 @@ class WishItemSerializer(serializers.ModelSerializer):
         if not Course.objects.filter(id=value.id).exists():
             raise serializers.ValidationError(
                 "The selected course does not exist."
-                )
+            )
         return value

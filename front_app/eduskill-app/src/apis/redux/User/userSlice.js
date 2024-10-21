@@ -2,6 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 // import apiClient from "../../interceptors/axios";
 
 const initialUser = {
+  first_name: "",
+  last_name: "",
   email: "",
   pk: null,
   username: "",
