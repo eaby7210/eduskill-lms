@@ -4,6 +4,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.viewsets import (
     ReadOnlyModelViewSet, ModelViewSet
 )
+from rest_framework.permissions import AllowAny
 from .models import (
     Category, Course, Module, Lesson
 )
@@ -12,14 +13,14 @@ from .serializers import (
     CourseListSerializer, CourseSerializer,
     ModuleListSerializer, ModuleSerializer,
     LessonSerializer
-    )
+)
 
 
 # Create your views here.
 
 
 class CategoryViewSet(ReadOnlyModelViewSet):
-
+    permission_classes = [AllowAny]
     queryset = Category.objects.filter(is_active=True, parent__isnull=True)
     lookup_field = 'slug'
 
@@ -36,7 +37,7 @@ class CourseOpenViewSet(ReadOnlyModelViewSet):
     queryset = Course.objects.select_related("teacher").filter(
         is_active=True,
         # status=Course.PUBLISHED
-        )
+    )
     lookup_field = 'slug'
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['category']

@@ -1,4 +1,6 @@
 import axios from "axios";
+import store from "../redux/store";
+import { userLogout } from "../redux/User/userSlice";
 export const baseurl = "http://localhost:8000";
 const apiClient = axios.create({
   baseURL: baseurl,
@@ -21,7 +23,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("access_token");
-    console.log(accessToken);
+    // console.log(accessToken);
     if (accessToken) {
       config.headers["Authorization"] = `Bearer ${accessToken}`;
     }
@@ -49,7 +51,7 @@ apiClient.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem("refresh_token");
-        console.log(refreshToken);
+        // console.log(refreshToken);
         const response = await axios.post(
           "http://localhost:8000/auth/token/refresh/",
           {
@@ -69,7 +71,8 @@ apiClient.interceptors.response.use(
         console.error("Token refresh failed:", refreshError);
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        return Promise.reject(refreshError);
+        store.dispatch(userLogout());
+        return null;
       }
     }
 

@@ -44,104 +44,108 @@ const Signup = () => {
   };
 
   return (
-    <section className="grid justify-items-center my-9">
-      <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+    <section className="grid justify-items-center  w-full">
+      <h1 className="text-center text-primary font-bold text-4xl py-2">
+        SignUp
+      </h1>
+      <div className="card bg-base-100 w-max max-w-xl shrink-0 shadow-2xl">
         <form className="card-body">
-          {/* First Name */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">First Name</span>
-            </label>
-            <input
-              type="text"
-              name="first_name"
-              value={form.first_name}
-              onChange={handleChange}
-              placeholder="First Name"
-              className="input input-bordered"
-            />
-            {errors?.first_name &&
-              errors.first_name.map((error, index) => (
-                <label className="label" key={index}>
-                  <span className="label-text text-center text-red-600">
-                    {error}
-                  </span>
-                </label>
-              ))}
-          </div>
+          <div className="flex fex-row gap-3">
+            {/* First Name */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">First Name</span>
+              </label>
+              <input
+                type="text"
+                name="first_name"
+                value={form.first_name}
+                onChange={handleChange}
+                placeholder="First Name"
+                className="input input-bordered"
+              />
+              {errors?.first_name &&
+                errors.first_name.map((error, index) => (
+                  <label className="label" key={index}>
+                    <span className="label-text text-center text-red-600">
+                      {error}
+                    </span>
+                  </label>
+                ))}
+            </div>
 
-          {/* Last Name */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Last Name</span>
-            </label>
-            <input
-              type="text"
-              name="last_name"
-              value={form.last_name}
-              onChange={handleChange}
-              placeholder="Last Name"
-              className="input input-bordered"
-              required
-            />
-            {errors?.last_name &&
-              errors.last_name.map((error, index) => (
-                <label className="label" key={index}>
-                  <span className="label-text text-center text-red-600">
-                    {error}
-                  </span>
-                </label>
-              ))}
+            {/* Last Name */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Last Name</span>
+              </label>
+              <input
+                type="text"
+                name="last_name"
+                value={form.last_name}
+                onChange={handleChange}
+                placeholder="Last Name"
+                className="input input-bordered"
+                required
+              />
+              {errors?.last_name &&
+                errors.last_name.map((error, index) => (
+                  <label className="label" key={index}>
+                    <span className="label-text text-center text-red-600">
+                      {error}
+                    </span>
+                  </label>
+                ))}
+            </div>
           </div>
-
-          {/* Username */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Username</span>
-            </label>
-            <input
-              type="text"
-              name="username"
-              value={form.username}
-              onChange={handleChange}
-              placeholder="Username"
-              className="input input-bordered"
-              required
-            />
-            {errors?.username &&
-              errors.username.map((error, index) => (
-                <label className="label" key={index}>
-                  <span className="label-text text-center text-red-600">
-                    {error}
-                  </span>
-                </label>
-              ))}
+          <div className="flex fex-row gap-3">
+            {/* Email */}
+            <div className="form-control flex-grow">
+              <label className="label">
+                <span className="label-text">Email</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="Email"
+                className="input input-bordered"
+                required
+              />
+              {errors?.email &&
+                errors.email.map((error, index) => (
+                  <label className="label" key={index}>
+                    <span className="label-text text-center text-red-600">
+                      {error}
+                    </span>
+                  </label>
+                ))}
+            </div>
+            {/* Username */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Username</span>
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={form.username}
+                onChange={handleChange}
+                placeholder="Username"
+                className="input input-bordered"
+                required
+              />
+              {errors?.username &&
+                errors.username.map((error, index) => (
+                  <label className="label" key={index}>
+                    <span className="label-text text-center text-red-600">
+                      {error}
+                    </span>
+                  </label>
+                ))}
+            </div>
           </div>
-
-          {/* Email */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Email</span>
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Email"
-              className="input input-bordered"
-              required
-            />
-            {errors?.email &&
-              errors.email.map((error, index) => (
-                <label className="label" key={index}>
-                  <span className="label-text text-center text-red-600">
-                    {error}
-                  </span>
-                </label>
-              ))}
-          </div>
-
           {/* Password 1 */}
           <div className="form-control">
             <label className="label">
