@@ -1,5 +1,8 @@
 
 #backend
+media
+sample
+
 .env
 .env.local
 .env.*.local
@@ -33,3 +36,22 @@ build
 
 .cache
 .vite
+
+logs
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
