@@ -5,7 +5,7 @@ from .models import CartItem, WishList
 from .serializers import (
     CartItemSerializer, CartItemListSerializer,
     WishItemSerializer, WishItemListSerializer
-    )
+)
 
 
 class CartItemViewSet(mixins.CreateModelMixin,
@@ -31,7 +31,7 @@ class CartItemViewSet(mixins.CreateModelMixin,
         # Check if the cart item already exists
         cart_item, created = CartItem.objects.get_or_create(
             course=course, customer=student
-            )
+        )
 
         if created:
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -61,7 +61,7 @@ class WishListViewSet(mixins.CreateModelMixin,
 
         wish_item, created = WishList.objects.get_or_create(
             course=course, customer=student
-            )
+        )
 
         if created:
             return Response(serializer.data, status=status.HTTP_201_CREATED)

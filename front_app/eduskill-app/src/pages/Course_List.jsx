@@ -31,7 +31,7 @@ const CourseList = () => {
             </label>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:grid-cols-1 ">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:grid-cols-1 p-3">
             {isLoading
               ? [0, 0, 0, 0, 0, 0].map((item, index) => (
                   <CardSkelton key={index} />

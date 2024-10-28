@@ -1,7 +1,9 @@
-// import React from 'react';
+/* eslint-disable react/prop-types */
 
-import { useLoaderData } from "react-router-dom";
+import { Link, useLoaderData, useRevalidator } from "react-router-dom";
 import Headline from "./components/Headline";
+import { useState } from "react";
+import apiClient from "../../apis/interceptors/axios";
 
 const CourseManage = () => {
   const courses = useLoaderData();
@@ -14,10 +16,11 @@ const CourseManage = () => {
           {/* head */}
           <thead>
             <tr>
-              <th></th>
+              <th>Id</th>
               <th>Title</th>
               <th>duration</th>
               <th>Price</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -32,14 +35,115 @@ const CourseManage = () => {
 };
 
 function CourseRow({ course }) {
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showBlockModal, setShowBlockModal] = useState(false);
+  const revalidator = useRevalidator();
+
+  console.log(course);
+  const handleApprove = async () => {
+    const urlStr = `/myadmin/courses/${course.id}/publish/ `;
+    // Logic to approve the course
+    // console.log("Course Approved:", course.title);
+    try {
+      const res = await apiClient.post(urlStr);
+      revalidator.revalidate();
+      setShowApproveModal(false);
+      alert("Course Approved");
+    } catch (error) {
+      console.log(error.response);
+      alert("Error in Approval");
+    }
+  };
+
+  const handleBlock = async () => {
+    const urlStr = `/myadmin/courses/${course.id}/block/`;
+    // Logic to block the course
+    // console.log("Course Blocked:", course.title);
+    try {
+      const res = await apiClient.post(urlStr);
+      revalidator.revalidate();
+      setShowBlockModal(false);
+      alert("Course Blocked");
+    } catch (error) {
+      console.log(error.response);
+      alert("Error in Blocking");
+    }
+  };
+
   return (
-    <tr>
-      <th>{course.id}</th>
-      <td>{course.title}</td>
-      <td>{course.duration} hours</td>
-      <td>{course.price}</td>
-    </tr>
+    <>
+      <tr className="hover">
+        <Link to={`${course.id}`}>
+          <th>{course.id}</th>
+        </Link>
+        <Link to={`${course.id}`}>
+          <td>{course.title}</td>
+        </Link>
+        <td>{course.duration} hours</td>
+        <td>₹ {course.price}</td>
+        <td className="flex flex-col md:flex-row gap-2">
+          {course.status === "pending_approval" ? (
+            <button
+              className="btn btn-primary btn-xs"
+              onClick={() => setShowApproveModal(true)}
+            >
+              Approve
+            </button>
+          ) : course.status === "published" ? (
+            <button
+              className="btn btn-error btn-xs"
+              onClick={() => setShowBlockModal(true)}
+            >
+              Block
+            </button>
+          ) : (
+            "Course is in Invalid state"
+          )}
+        </td>
+      </tr>
+
+      {/* Approve Confirmation Modal */}
+      {showApproveModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Approve Course</h3>
+            <p>Are you sure you want to approve the course: {course.title}?</p>
+            <div className="modal-action">
+              <button className="btn btn-primary" onClick={handleApprove}>
+                Yes, Approve
+              </button>
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowApproveModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Block Confirmation Modal */}
+      {showBlockModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Block Course</h3>
+            <p>Are you sure you want to block the course: {course.title}?</p>
+            <div className="modal-action">
+              <button className="btn btn-error" onClick={handleBlock}>
+                Yes, Block
+              </button>
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowBlockModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
-
 export default CourseManage;

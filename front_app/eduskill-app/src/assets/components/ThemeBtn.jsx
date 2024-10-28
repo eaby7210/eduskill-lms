@@ -14,7 +14,7 @@ const ThemeBtn = () => {
   return (
     <label className="grid cursor-pointer place-items-center">
       <input
-        data-toggle-theme="dark,light"
+        data-toggle-theme="forest,light"
         data-act-class="ACTIVECLASS"
         type="checkbox"
         value="synthwave"

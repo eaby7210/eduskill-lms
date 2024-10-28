@@ -12,6 +12,7 @@ import { InitialLoad } from "./services/apiUser.js";
 import {
   getCourse,
   getCourseList,
+  getTutorCourseModules,
   getTutorCourses,
   postCourse,
   updateCourse,
@@ -84,10 +85,7 @@ const router = createBrowserRouter([
             path: "wishlist",
             lazy: () => import("../assets/Wishlist.jsx"),
           },
-          {
-            path: "cart",
-            lazy: () => import("../assets/Cart.jsx"),
-          },
+
           {
             path: "cart",
             lazy: () => import("../assets/Cart.jsx"),
@@ -111,6 +109,11 @@ const router = createBrowserRouter([
         ),
         errorElement: <Error />,
         loader: getCourseList,
+      },
+      {
+        path: "/courses/:slug/",
+        lazy: () => import("../pages/CourseP.jsx"),
+        errorElement: <Error />,
       },
       {
         path: "/admin",
@@ -142,6 +145,10 @@ const router = createBrowserRouter([
             ),
             loader: getCourses,
           },
+          {
+            path: "courses/:id",
+            lazy: () => import("./../assets/admin/CoursePage.jsx"),
+          },
         ],
       },
       {
@@ -161,6 +168,7 @@ const router = createBrowserRouter([
             path: "courses/:slug",
             element: <CoursePage />,
             action: updateCourse,
+            loader: getCourse,
             children: [
               {
                 path: "",
@@ -170,6 +178,7 @@ const router = createBrowserRouter([
               {
                 path: "curriculum/",
                 element: <Curriculum />,
+                loader: getTutorCourseModules,
               },
               {
                 path: "publish/",

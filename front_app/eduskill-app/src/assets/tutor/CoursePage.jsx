@@ -1,5 +1,10 @@
 // import React from "react";
-import { NavLink, useActionData, useParams } from "react-router-dom";
+import {
+  NavLink,
+  useActionData,
+  useLoaderData,
+  useParams,
+} from "react-router-dom";
 import Headline from "../admin/components/Headline";
 import { Outlet } from "react-router-dom";
 
@@ -9,7 +14,8 @@ export default function CoursePage() {
   }
   const actionData = useActionData();
   const params = useParams();
-  console.log(params);
+  const courseData = useLoaderData();
+
   return (
     <>
       <Headline headline={"Course Page"} />
@@ -38,7 +44,7 @@ export default function CoursePage() {
         </NavLink>
       </div>
       <div className="w-full">
-        <Outlet context={actionData} />
+        <Outlet context={{ actionData: actionData, courseData: courseData }} />
       </div>
     </>
   );

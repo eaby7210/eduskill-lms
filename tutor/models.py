@@ -9,6 +9,9 @@ from ordered_model.models import OrderedModel
 # from django.dispatch import receiver
 
 
+
+
+
 class Teacher(models.Model):
     user = models.OneToOneField(
         unique=True,
@@ -63,11 +66,13 @@ class Course(models.Model):
     DRAFT = 'draft'
     PENDING_APPROVAL = 'pending_approval'
     PUBLISHED = 'published'
+    BLOCKED = 'blocked'
 
     COURSE_STATUS_CHOICES = [
         (DRAFT, 'Saved as Draft'),
         (PENDING_APPROVAL, 'Saved for Approval'),
         (PUBLISHED, 'Published Public'),
+        (BLOCKED, 'Blocked')
     ]
 
     teacher = models.ForeignKey(
@@ -130,12 +135,6 @@ class Course(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     popularity_score = models.FloatField(default=0.0)
-    # enrollment_limit = models.PositiveIntegerField(
-    #     null=True, blank=True,
-    #     validators=[
-    #         MinValueValidator(0.00)
-    #     ]
-    #     )
 
     def __str__(self):
         return self.title
@@ -151,26 +150,37 @@ class Course(models.Model):
             previous_status = Course.objects.get(pk=self.pk).status
 
             # Enforce status transition rules
-            if previous_status == (
-                    self.DRAFT and self.status not in [
-                        self.DRAFT, self.PENDING_APPROVAL
-                    ]):
+            if previous_status == self.DRAFT and self.status in [
+                self.BLOCKED, self.PUBLISHED
+            ]:
+                print("sfgsdfgsdfgsdfgsdfg")
+                print(self.status)
                 raise ValidationError(
                     "You can only move from 'Draft' to 'Pending Approval'."
                 )
-            if previous_status == (
-                    self.PENDING_APPROVAL and self.status not in [
-                        self.PENDING_APPROVAL, self.PUBLISHED
-                    ]):
+            if previous_status == self.PENDING_APPROVAL and self.status in [
+                self.BLOCKED
+            ]:
                 raise ValidationError(
                     "You can only move from 'Pending Approval' to 'Published'."
                 )
-            if previous_status == (
-                self.PUBLISHED and self.status != self.PUBLISHED
-            ):
+            if previous_status == self.PUBLISHED:
+                if self.status in [
+                    self.PENDING_APPROVAL,
+                ]:
+
+                    raise ValidationError(
+                        "A 'Published' course can only transition\
+                            to 'Blocked'."
+                    )
+
+            if previous_status == self.BLOCKED and\
+                    self.status in [
+                        self.PENDING_APPROVAL
+                    ]:
                 raise ValidationError(
-                    "A 'Published' course cannot be\
-                        reverted to any previous state."
+                    "A 'Blocked' course can only transition\
+                        back to 'Published'."
                 )
 
     def save(self, *args, **kwargs):
@@ -263,7 +273,7 @@ class Lesson(OrderedModel):
     module = models.ForeignKey(
         Module, on_delete=models.CASCADE, related_name='lessons'
     )
-    is_published = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     resources = models.FileField(
