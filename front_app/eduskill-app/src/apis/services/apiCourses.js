@@ -17,7 +17,6 @@ async function getCourseList({ request }) {
 
   // Build the URL string
   const urlstr = queryParams ? `/courses/?${queryParams}` : "/courses/";
-  console.log(urlstr);
   const res = await apiClient.get(urlstr);
   //   console.log(res);
   return res.data;
@@ -76,6 +75,7 @@ async function postCourse({ request }) {
   );
   courseData.append("teacher", user?.teacher_profile?.id);
   const thumbnail = formData.get("course_thumbnail");
+  console.log(thumbnail);
   if (thumbnail && thumbnail.size > 0) {
     courseData.append("course_thumbnail", thumbnail);
   }
@@ -92,4 +92,21 @@ async function postCourse({ request }) {
   }
 }
 
-export { getCourseList, postCourse, getTutorCourses, getCourse, updateCourse };
+async function getTutorCourseModules({ params }) {
+  //   const url = new URL(request.url);
+  const slug = params.slug;
+  const urlstr = `/tutor/courses/${slug}/modules`;
+  const res = await apiClient.get(urlstr);
+  //   console.log(urlstr);
+  console.log(res.data);
+  return res.data;
+}
+
+export {
+  getCourseList,
+  postCourse,
+  getTutorCourses,
+  getCourse,
+  getTutorCourseModules,
+  updateCourse,
+};

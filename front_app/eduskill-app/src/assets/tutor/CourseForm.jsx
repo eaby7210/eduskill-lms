@@ -11,7 +11,7 @@ export default function CourseForm() {
 
   return (
     <div className="w-10/12 mx-auto my-4">
-      <Form method="post" className="space-y-4">
+      <Form method="post" className="space-y-4" encType="multipart/form-data">
         {/* Title */}
         <div className="form-control">
           <label className="label">

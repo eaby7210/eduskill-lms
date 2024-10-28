@@ -27,7 +27,7 @@ const NavEnd = () => {
         <ThemeBtn />
         {user?.pk && (
           <Link
-            to="/profile"
+            to="/user"
             className="tooltip tooltip-bottom"
             data-tip={user?.username}
           >

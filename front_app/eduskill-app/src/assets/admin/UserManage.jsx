@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 // import React from "react";
 
-import { useLoaderData, useNavigation, useRevalidator } from "react-router-dom";
+import { useLoaderData, useRevalidator } from "react-router-dom";
 import Headline from "./components/Headline";
 import { useState } from "react";
 import apiClient from "../../apis/interceptors/axios";
@@ -36,7 +36,7 @@ function TableRow({ user, handleUserBlock }) {
 }
 
 const UserManage = () => {
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
   const revalidator = useRevalidator();
   const data = useLoaderData();
   const [modal, setModal] = useState(null);

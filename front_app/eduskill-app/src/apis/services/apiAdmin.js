@@ -12,8 +12,4 @@ async function getCourses() {
   return res.data;
 }
 
-async function updateUsers() {}
-
-async function disableUsers() {}
-
-export { getUsers, updateUsers, disableUsers, getCourses };
+export { getUsers, getCourses };

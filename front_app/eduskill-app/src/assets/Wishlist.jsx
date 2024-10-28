@@ -1,7 +1,76 @@
+/* eslint-disable react/prop-types */
 // import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { postWishItem } from "../apis/services/apiUser";
+import { removeItem } from "../apis/redux/Wishlist/wishSlice";
 
+// WishlistCard Component
+function WishlistCard({ wishlistItem }) {
+  const dispatch = useDispatch();
+
+  async function handleWishListItem() {
+    try {
+      await postWishItem(wishlistItem.id);
+      dispatch(removeItem(wishlistItem));
+    } catch {
+      alert("Unable to remove from Wishlist");
+    }
+  }
+
+  return (
+    <div className="col-span-2">
+      <div className="card bg-base-100 shadow-lg mb-4">
+        <div className="card-body">
+          {/* Course Title */}
+          <h2 className="card-title text-primary">{wishlistItem.title}</h2>
+
+          {/* Instructor and Category */}
+          <p className="text-sm text-base-content mb-2">
+            Instructor: {wishlistItem.teacher_name}
+          </p>
+          <p className="text-sm text-base-content mb-4">
+            Category: {wishlistItem.category}
+          </p>
+
+          {/* Price */}
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-lg font-bold text-base-content">
+              ₹{wishlistItem.affected_price}
+              {wishlistItem.discount_percent && (
+                <span className="line-through text-gray-500 ml-2">
+                  ₹{wishlistItem.price}
+                </span>
+              )}
+            </span>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-between items-center">
+            <Link
+              to={`/courses/${wishlistItem.slug}`}
+              className="btn btn-secondary"
+            >
+              View Course
+            </Link>
+            <button
+              className="btn btn-outline btn-error"
+              onClick={handleWishListItem}
+            >
+              Remove from Wishlist
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// WishlistComponent Template
 export function Component() {
+  const wishList = useSelector((state) => state.wishList.wishList);
+  console.log(wishList);
+
   return (
     <div className="min-h-screen bg-base-200 p-5">
       <div className="container mx-auto">
@@ -9,105 +78,16 @@ export function Component() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-primary">My Wishlist</h1>
           <Link to="/courses" className="btn btn-primary">
-            Browse Courses
+            Browse More Courses
           </Link>
         </div>
 
         {/* Wishlist Courses Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-6">
           {/* Wishlist Course Card */}
-          <div className="col-span-1 lg:col-span-2">
-            <div className="card bg-base-100 shadow-lg mb-4">
-              <div className="card-body">
-                <h2 className="card-title text-primary">
-                  Full-Stack Web Development
-                </h2>
-                <p className="text-sm text-base-content mb-2">
-                  Instructor: Alex Johnson
-                </p>
-                <p className="text-sm text-base-content mb-4">
-                  Category: Development
-                </p>
-
-                {/* Price and Discount */}
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-lg font-bold text-base-content">
-                    $149.99
-                  </span>
-                  <span className="text-sm text-accent">20% off</span>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex justify-between items-center">
-                  <Link
-                    to="/course/full-stack-web-development"
-                    className="btn btn-secondary"
-                  >
-                    View Course
-                  </Link>
-                  <button className="btn btn-outline btn-error">
-                    Remove from Wishlist
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="card bg-base-100 shadow-lg mb-4">
-              <div className="card-body">
-                <h2 className="card-title text-primary">
-                  Data Science with Python
-                </h2>
-                <p className="text-sm text-base-content mb-2">
-                  Instructor: Maria Smith
-                </p>
-                <p className="text-sm text-base-content mb-4">
-                  Category: Data Science
-                </p>
-
-                {/* Price and Discount */}
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-lg font-bold text-base-content">
-                    $199.99
-                  </span>
-                  <span className="text-sm text-accent">15% off</span>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex justify-between items-center">
-                  <Link
-                    to="/course/data-science-python"
-                    className="btn btn-secondary"
-                  >
-                    View Course
-                  </Link>
-                  <button className="btn btn-outline btn-error">
-                    Remove from Wishlist
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Add more wishlist items similarly */}
-          </div>
-
-          {/* Wishlist Summary & Actions */}
-          <div className="col-span-1">
-            <div className="card bg-base-100 shadow-lg">
-              <div className="card-body">
-                <h2 className="card-title text-primary">Wishlist Summary</h2>
-                <div className="text-lg font-bold text-base-content">
-                  Courses in Wishlist: 3
-                </div>
-                <p className="text-sm text-base-content mb-4">
-                  You can enroll in these courses to start learning immediately.
-                </p>
-
-                <Link to="/cart" className="btn btn-outline btn-accent w-full">
-                  Go to Cart
-                </Link>
-              </div>
-            </div>
-          </div>
+          {wishList.map((wishlistItem) => (
+            <WishlistCard key={wishlistItem.id} wishlistItem={wishlistItem} />
+          ))}
         </div>
       </div>
     </div>

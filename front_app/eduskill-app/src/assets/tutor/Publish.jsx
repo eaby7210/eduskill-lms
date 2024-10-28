@@ -1,5 +1,34 @@
 // import React from 'react'
 
+import { useOutletContext } from "react-router-dom";
+
 export default function Publish() {
-  return <div>Publish</div>;
+  const { courseData } = useOutletContext();
+  const course = courseData;
+  console.log(course);
+
+  async function handleSubmit() {
+    const urlStr = `/tutor/courses/deserunt-magni-inven/`;
+    console.log(urlStr);
+  }
+
+  return (
+    <>
+      <h1>Publish</h1>
+      {course.status == "draft" ? (
+        <button
+          className="btn btn-accent w-full text-xl"
+          onClick={handleSubmit}
+        >
+          Publish Course
+        </button>
+      ) : course.status == "published" ? (
+        <p>Course is published to public</p>
+      ) : course.status == "published" ? (
+        <p>Requested for Approval</p>
+      ) : (
+        ""
+      )}
+    </>
+  );
 }

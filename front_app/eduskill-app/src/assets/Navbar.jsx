@@ -4,8 +4,7 @@ import NavList from "./components/NavList";
 import Horse from "./svgs/horse";
 import NavEnd from "./components/NavEnd";
 import { NavLink } from "react-router-dom";
-import Heart from "./svgs/Heart";
-import Cart from "./svgs/Cart";
+import NavStore from "./components/NavStore";
 // import User from "./svgs/User";
 
 const Navbar = () => {
@@ -49,8 +48,7 @@ const Navbar = () => {
         </ul>
       </div>
       <div className="navbar-end flex gap-2 mx-1">
-        <Heart h={"h-7"} w={"w-7"} />
-        <Cart h={"h-7"} w={"w-7"} />
+        <NavStore />
       </div>
       <div className="navbar-end hidden lg:flex min-w-fit">
         <NavEnd />

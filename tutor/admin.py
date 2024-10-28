@@ -12,7 +12,7 @@ class TeacherAdmin(admin.ModelAdmin):
     list_display = (
         'user', 'is_active', 'is_verified',
         'created_at', 'updated_at'
-        )
+    )
     list_filter = ('is_active', 'is_verified')
     search_fields = ('user__username', 'user__email', 'bio', 'qualifications')
     readonly_fields = ('created_at', 'updated_at')
@@ -23,7 +23,7 @@ class CategoryAdmin(OrderedModelAdmin):
     list_display = (
         'name', 'slug', 'parent', 'is_active',
         'order', 'move_up_down_links'
-        )
+    )
     list_filter = ('is_active', 'parent')
     search_fields = ('name', 'description')
     ordering = ('order', 'name')
@@ -69,10 +69,10 @@ class ModuleAdmin(OrderedModelAdmin):
 class LessonAdmin(OrderedModelAdmin):
     list_display = (
         'title', 'module', 'lesson_type',
-        'is_published', 'order',
+        'is_active', 'order',
         'move_up_down_links'
-        )
-    list_filter = ('module', 'lesson_type', 'is_published')
+    )
+    list_filter = ('module', 'lesson_type', 'is_active')
     search_fields = ('title', 'module__title')
     readonly_fields = ('created_at', 'updated_at')
     ordering = ('order',)
@@ -83,7 +83,7 @@ class ResourceAdmin(admin.ModelAdmin):
     list_display = (
         'title', 'resource_type',
         'course', 'is_active', 'created_at'
-        )
+    )
     list_filter = ('resource_type', 'course', 'is_active')
     search_fields = ('title', 'description')
     readonly_fields = ('created_at', 'updated_at')
@@ -107,7 +107,7 @@ class ReviewAdmin(admin.ModelAdmin):
         'course', 'user', 'rating',
         'helpful_count', 'anonymous',
         'review_date'
-        )
+    )
     list_filter = ('rating', 'anonymous', 'flagged')
     search_fields = ('course__title', 'user__username', 'comment')
     readonly_fields = ('review_date', 'updated_at', 'helpful_count')
