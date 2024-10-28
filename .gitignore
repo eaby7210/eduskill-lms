@@ -1,7 +1,7 @@
 
 #backend
 media
-sample
+samples
 
 .env
 .env.local
