@@ -20,6 +20,16 @@ django-autoslug = "*"
 django-ordered-model = "*"
 drf-nested-routers = "*"
 django-extensions = "*"
+celery = "*"
+razorpay = "*"
+setuptools = "*"
+redis = "*"
+channels = "*"
+channels-redis = "*"
+uvicorn = "*"
+boto3 = "*"
+django-storages = "*"
+django-environ = "*"
 
 [dev-packages]
 
@@ -28,3 +38,5 @@ python_version = "3.12"
 
 [scripts]
 dev = "python manage.py runserver"
+cmddev = "cmd /c \"python manage.py makemigrations && python manage.py migrate && python manage.py runserver\""
+shdev = "sh -c 'python manage.py makemigrations && python manage.py migrate && python manage.py runserver'"

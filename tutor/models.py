@@ -1,3 +1,4 @@
+import os
 from datetime import timezone
 from django.db import models
 from django.conf import settings
@@ -7,9 +8,6 @@ from django.core.exceptions import ValidationError
 from ordered_model.models import OrderedModel
 # from django.db.models.signals import post_save, pre_delete
 # from django.dispatch import receiver
-
-
-
 
 
 class Teacher(models.Model):
@@ -274,8 +272,10 @@ class Lesson(OrderedModel):
         Module, on_delete=models.CASCADE, related_name='lessons'
     )
     is_active = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     resources = models.FileField(
         upload_to='lessons/resources/', blank=True, null=True
     )
@@ -309,44 +309,48 @@ class TextContent(models.Model):
 
 
 class VideoContent(models.Model):
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    STATUS_CHOICES = (
+        (PENDING, "Pending"),
+        (PROCESSING, "Processing"),
+        (COMPLETED, "Completed"),
+    )
     lesson = models.OneToOneField(
         Lesson, on_delete=models.CASCADE, related_name='video_content'
     )
     video_file = models.FileField(
         upload_to='lessons/videos/', blank=True, null=True
     )
+    thumbnail = models.ImageField(max_length=255,
+                                  upload_to='lessons/thumbnails',
+                                  blank=True, null=True
+                                  )
+    hls = models.CharField(max_length=255, blank=True, null=True)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=PENDING,
+    )
+
+    def get_basename(self):
+        return f"{str(self.id)}__{os.path.basename(self.video_file.name)}"
 
     def __str__(self):
         return f"Video content for {self.lesson.title}"
 
 
-class Review(models.Model):
-    course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, related_name="course_reviews"
+def ts_file_upload_to(instance, filename):
+    return f'ts_files/{instance.video_content.id}/{filename}'
+
+
+class TSFile(models.Model):
+    video_content = models.ForeignKey(
+        VideoContent, on_delete=models.CASCADE, related_name='ts_files'
     )
-    user = models.ForeignKey(
-        to=settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="user_reviews"
-    )
-    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
-    comment = models.TextField(
-        blank=True, null=True
-    )
-    review_date = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    helpful_count = models.PositiveIntegerField(default=0)
-    flagged = models.BooleanField(default=False)
-    anonymous = models.BooleanField(default=False)
+    ts_file = models.FileField(upload_to=ts_file_upload_to)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Review by {self.user} for {self.course}"
-
-
-# @receiver(post_save, sender=Course)
-# def update_category_course_count(sender, instance, **kwargs):
-#     if instance.category:
-#         instance.category.courses_count = Course.objects.filter(
-#             category=instance.category
-#             ).count()
-#         instance.category.save()
+        return f"TS file for {self.video_content.lesson.title}"

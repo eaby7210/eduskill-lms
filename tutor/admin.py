@@ -3,7 +3,7 @@ from ordered_model.admin import OrderedModelAdmin, OrderedTabularInline
 from .models import (
     Teacher, Category, Course,
     Resource, Module, Lesson,
-    TextContent, VideoContent, Review
+    TextContent, VideoContent
 )
 
 
@@ -99,15 +99,3 @@ class TextContentAdmin(admin.ModelAdmin):
 class VideoContentAdmin(admin.ModelAdmin):
     list_display = ('lesson', 'video_file')
     search_fields = ('lesson__title', 'video_file')
-
-
-@admin.register(Review)
-class ReviewAdmin(admin.ModelAdmin):
-    list_display = (
-        'course', 'user', 'rating',
-        'helpful_count', 'anonymous',
-        'review_date'
-    )
-    list_filter = ('rating', 'anonymous', 'flagged')
-    search_fields = ('course__title', 'user__username', 'comment')
-    readonly_fields = ('review_date', 'updated_at', 'helpful_count')

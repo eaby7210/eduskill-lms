@@ -1,8 +1,13 @@
 from rest_framework import serializers
+import tempfile
+import os
+import boto3
+from django.conf import settings
+from django.apps import apps
 from .models import (
     Teacher, Category, Course,
     Resource, Module, Lesson,
-    TextContent, VideoContent, Review,
+    TextContent, VideoContent, TSFile
 )
 
 
@@ -12,10 +17,63 @@ class TextContentSerializer(serializers.ModelSerializer):
         fields = ['id', 'content']
 
 
+class TSFileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TSFile
+        fields = ['id', 'ts_file']
+
+
 class VideoContentSerializer(serializers.ModelSerializer):
+    hls = serializers.SerializerMethodField()
+
     class Meta:
         model = VideoContent
-        fields = ['id', 'video_file']
+        fields = ['id', 'video_file', 'thumbnail', 'hls']
+
+    def get_hls(self, obj):
+        if obj.hls:
+            try:
+                hls_str = obj.hls
+                temp_dir = tempfile.mkdtemp()
+                local_hls_path = os.path.join(
+                    temp_dir,
+                    os.path.join(*hls_str.split('/')[-3:])
+                )
+                os.makedirs(os.path.dirname(local_hls_path), exist_ok=True)
+                key = '/'.join(hls_str.split('/')[-3:])
+                s3 = boto3.client('s3')
+                s3.download_file(
+                    settings.AWS_STORAGE_BUCKET_NAME,
+                    key,
+                    local_hls_path
+                )
+
+                # Retrieve all TS files associated with the object
+                ts_files = obj.ts_files.all()
+                ts_file_map = {ts_file.ts_file.name.split(
+                    '/')[-1]: ts_file.ts_file.url for ts_file in ts_files}
+
+                with open(local_hls_path, 'r') as m3u8_file:
+                    lines = m3u8_file.readlines()
+
+                with open(local_hls_path, 'w') as m3u8_file:
+                    for line in lines:
+                        if line.endswith('.ts\n'):
+                            ts_file = line.strip()
+                            key = f'hls/{obj.id}/{ts_file}'
+                            url = ts_file_map.get(ts_file, ts_file)
+                            m3u8_file.write(url + '\n')
+                        else:
+                            m3u8_file.write(line)
+
+                with open(local_hls_path, 'r') as m3u8_file:
+                    hls_content = m3u8_file.read()
+                return hls_content
+            except Exception as e:
+                print(e)
+                return None
+        return None
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -65,24 +123,25 @@ class LessonSerializer(serializers.ModelSerializer):
             )
 
 
-class ReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields = ['id', 'course', 'user', 'rating',
-                  'comment', 'review_date', 'updated_at',
-                  'helpful_count', 'flagged', 'anonymous'
-                  ]
-
-
 class TeacherSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Teacher
         fields = [
-            'id', 'user', 'bio', 'qualifications',
+            'id',  'bio', 'qualifications',
             'is_active', 'is_verified', 'created_at',
             'updated_at'
         ]
+        read_only_fields = ('id', 'is_active', 'is_verified',
+                            'created_at', 'updated_at', 'user')
+
+    def validate_user(self, value):
+        # Ensure that a user can only create a Teacher profile
+        # if not already assigned as a teacher
+        if Teacher.objects.filter(user=value).exists():
+            raise serializers.ValidationError(
+                "This user already has a teacher profile.")
+        return value
 
 
 class TeacherUpdateSerializer(serializers.ModelSerializer):
@@ -94,7 +153,7 @@ class TeacherUpdateSerializer(serializers.ModelSerializer):
         ]
 
 
-class CategoryListSerializer(serializers.ModelSerializer):
+class CategoryOpenListSerializer(serializers.ModelSerializer):
 
     subcategories = serializers.SerializerMethodField()
 
@@ -103,6 +162,25 @@ class CategoryListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'slug',
             'subcategories'
+        ]
+
+    def get_subcategories(self, obj):
+        if obj.subcategories.exists():
+            return CategoryOpenListSerializer(
+                obj.subcategories.filter(is_active=True), many=True
+            ).data
+        return []
+
+
+class CategoryListSerializer(serializers.ModelSerializer):
+
+    subcategories = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Category
+        fields = [
+            'id', 'name', 'slug',
+            'subcategories', 'is_active'
         ]
 
     def get_subcategories(self, obj):
@@ -130,6 +208,8 @@ class CourseListSerializer(serializers.ModelSerializer):
 
     teacher_name = serializers.SerializerMethodField()
     affected_price = serializers.SerializerMethodField()
+    total_reviews = serializers.IntegerField(read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Course
@@ -137,7 +217,8 @@ class CourseListSerializer(serializers.ModelSerializer):
             'id', 'title', 'slug', 'description', 'is_active',
             'price', 'discount_percent', 'duration',
             'course_thumbnail', 'category', 'status',
-            'teacher_name', 'affected_price'
+            'teacher_name', 'affected_price',
+            'total_reviews', 'average_rating'
         ]
 
     def get_affected_price(self, obj):
@@ -218,6 +299,8 @@ class CourseRetrivalSerializer(serializers.ModelSerializer):
     teacher_name = serializers.SerializerMethodField()
     affected_price = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
+    total_reviews = serializers.IntegerField(read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Course
@@ -230,12 +313,14 @@ class CourseRetrivalSerializer(serializers.ModelSerializer):
                   'is_active', 'published_at', 'last_updated',
                   'requirements', 'learning_objectives',
                   'target_audience', 'completion_certificate',
-                  'created_at', 'updated_at', 'popularity_score', 'modules'
+                  'created_at', 'updated_at', 'popularity_score', 'modules',
+                  'total_reviews', 'average_rating'
         ]
         read_only_fields = [
             'id', 'slug', 'is_published',
             'published_at', 'last_updated', 'created_at',
-            'updated_at', 'popularity_score'
+            'updated_at', 'popularity_score',
+            'total_reviews', 'average_rating'
         ]
 
     def get_affected_price(self, obj):
@@ -257,3 +342,31 @@ class ModuleSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description',
                   'order', 'duration', 'is_active',
                   'created_at', 'updated_at']
+
+
+class TeacherChatRoomSerializer(serializers.ModelSerializer):
+    student_name = serializers.SerializerMethodField()
+    student_id = serializers.IntegerField(source='enrollment.student.id')
+    course_title = serializers.CharField(source='enrollment.course.title')
+    course_id = serializers.IntegerField(source='enrollment.course.id')
+    unread_count = serializers.SerializerMethodField()
+    last_activity = serializers.SerializerMethodField()
+
+    class Meta:
+        model = apps.get_model('students', 'ChatRoom')
+        fields = [
+            'id', 'student_name', 'student_id', 'course_title', 'course_id',
+            'unread_count',  'last_activity', 'created_at'
+        ]
+
+    def get_unread_count(self, obj):
+        user = self.context['request'].user
+        return obj.messages.filter(is_read=False).exclude(sender=user).count()
+
+    def get_last_activity(self, obj):
+        last_msg = obj.messages.last()
+        return last_msg.timestamp if last_msg else obj.created_at
+
+    def get_student_name(self, obj):
+        user = obj.enrollment.student.user
+        return f'{user.first_name} {user.last_name}'

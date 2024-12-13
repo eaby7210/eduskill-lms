@@ -1,10 +1,16 @@
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from .serializers import UserUpdateSerializer
+from rest_framework.decorators import action
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.mixins import DestroyModelMixin
+from .serializers import UserUpdateSerializer, NotificationSerializer
+from .models import Notification
 from tutor.serializers import TeacherUpdateSerializer
 from students.serializers import StudentUpdateSerializer
 # from django.contrib.auth import get_user_model
@@ -31,8 +37,9 @@ class UserUpdateView(APIView):
             'last_name': request.data.get('last_name'),
             'email': request.data.get('email'),
             'username': request.data.get('username'),
-            'image': request.data.get('image')
+            'image': request.data.get('image'),
         }.items() if value is not None}
+
         user_serializer = UserUpdateSerializer(
             instance=user, data=user_data, partial=True)
         if user_serializer.is_valid():
@@ -76,3 +83,90 @@ class UserUpdateView(APIView):
             'user': user_serializer.data,
             'role_data': role_data
         }, status=status.HTTP_200_OK)
+
+
+class NotificationPagination(PageNumberPagination):
+    """
+    Custom pagination class for notifications.
+    """
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
+class NotificationViewSet(DestroyModelMixin,  GenericViewSet):
+    """
+    ViewSet for Notifications.
+    """
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = NotificationPagination
+
+    def get_queryset(self):
+        """
+        Filters notifications for the currently
+        authenticated user.
+        """
+        user = self.request.user
+        return Notification.objects.filter(
+            receiver=user
+        ).order_by('-timestamp')
+
+    def list(self, request, *args, **kwargs):
+        """
+        Override the list method to add
+        total notification count to the response.
+        """
+        queryset = self.get_queryset()
+        total_notifications = queryset.count()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response({
+                "total_count": total_notifications,
+                "notifications": serializer.data
+            })
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            "total_count": total_notifications,
+            "notifications": serializer.data
+        })
+
+    @action(
+        detail=True, methods=["post"],
+        permission_classes=[IsAuthenticated]
+    )
+    def mark_as_read(self, request, pk=None):
+        """
+        Custom action to mark a single notification as read.
+        """
+        try:
+            notification = self.get_object()
+            notification.is_read = True
+            notification.save()
+            return Response(
+                {"detail": "Notification marked as read."},
+                status=status.HTTP_200_OK
+            )
+        except Notification.DoesNotExist:
+            return Response(
+                {"detail": "Notification not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+    @action(
+        detail=False, methods=["post"],
+        permission_classes=[IsAuthenticated]
+    )
+    def clear_all(self, request):
+        """
+        Custom action to delete all notifications for the current user.
+        """
+        notifications = self.get_queryset()
+        count = notifications.count()
+        notifications.delete()
+        return Response(
+            {"detail": f"All {count} notifications cleared."},
+            status=status.HTTP_200_OK
+        )

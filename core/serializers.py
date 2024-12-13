@@ -4,22 +4,24 @@ from dj_rest_auth.serializers import (
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from tutor.serializers import TeacherSerializer
 from students.serializers import StudentSerializer
+from allauth.account.models import EmailAddress
 from django.apps import apps
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from .models import Notification
 User = get_user_model()
-print("serializer")
 
 
 class UserSerializer(UserDetailsSerializer):
     teacher_profile = serializers.SerializerMethodField()
     student_profile = serializers.SerializerMethodField()
+    email_verified = serializers.SerializerMethodField()
 
     class Meta(UserDetailsSerializer.Meta):
         model = User
         fields = UserDetailsSerializer.Meta.fields + (
             'role', 'image', 'is_active', 'is_superuser',
-            'teacher_profile', 'student_profile',
+            'teacher_profile', 'student_profile', 'email_verified'
         )
         read_only_fields = UserDetailsSerializer.Meta.read_only_fields + (
             'is_active', 'is_superuser', 'role'
@@ -42,6 +44,14 @@ class UserSerializer(UserDetailsSerializer):
             return StudentSerializer(student).data
         except Student.DoesNotExist:
             return None
+
+    def get_email_verified(self, obj):
+        """Checks if the user's email is verified"""
+        try:
+            email_address = EmailAddress.objects.get(user=obj, primary=True)
+            return email_address.verified
+        except EmailAddress.DoesNotExist:
+            return False
 
 
 class UserRegisterSerializer(RegisterSerializer):
@@ -106,3 +116,17 @@ class CustomPasswordChangeSeralizer(PasswordChangeSerializer):
         if not user.check_password(value):
             raise serializers.ValidationError("Current password is incorrect.")
         return value
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = [
+            'id',
+            'sender',
+            'receiver',
+            'message',
+            'timestamp',
+            'is_read',
+            'user_role',
+        ]

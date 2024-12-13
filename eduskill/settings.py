@@ -11,17 +11,24 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from datetime import timedelta
+import environ
 import os
 from pathlib import Path
 
+
+env = environ.Env()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 SECRET_KEY = \
     'django-insecure-+7cnx-ssy5z9==&zcvhxcz=o5#7q70oit-rr@na(a0jlo*m9vd'
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost",
+                 "127.0.0.1", "http://localhost:8000"]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -57,6 +64,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'django_extensions',
+    'channels',
+    'storages',
     # myapps
     'core',
     'students',
@@ -99,13 +108,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'eduskill.wsgi.application'
+ASGI_APPLICATION = "eduskill.asgi.application"
 
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'lms',
-        'HOST': 'localhost',
+        'HOST': 'host.docker.internal',
+        # 'HOST': 'localhost',
         'USER': 'postgres',
         'PASSWORD': '1234',
         'port': '5432'
@@ -164,9 +175,11 @@ REST_AUTH = {
         'core.serializers.CustomPasswordChangeSeralizer',
     'REGISTER_SERIALIZER': 'core.serializers.UserRegisterSerializer',
     'USER_DETAILS_SERIALIZER': 'core.serializers.UserSerializer',
+    'LOGOUT_ON_PASSWORD_CHANGE': True,
 
 
 }
+
 
 CSRF_COOKIE_NAME = "csrftoken"
 CSRF_HEADER_NAME = "HTTP_X_CSRFTOKEN"
@@ -188,7 +201,8 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_EMAIL_REQUIRED = True
 
 LANGUAGE_CODE = 'en-us'
 
@@ -200,32 +214,78 @@ USE_TZ = True
 
 SITE_ID = 1
 
-STATIC_URL = 'static/'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# AWS Settings
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
+AWS_S3_FILE_OVERWRITE = False
+AWS_QUERYSTRING_EXPIRE = 2700
+AWS_DEFAULT_ACL = None
+
+# PEM_FILE_PATH = os.path.join(BASE_DIR, 'cf_secretkey.pem')
+
+# with open(PEM_FILE_PATH, 'rb') as pem_file:
+#     AWS_CLOUDFRONT_KEY_PEM = pem_file.read()
+
+# AWS_CLOUDFRONT_KEY_ID = env('AWS_CLOUDFRONT_KEY_ID')
+# # AWS_CLOUDFRONT_KEY = AWS_CLOUDFRONT_KEY_PEM
+# AWS_CLOUDFRONT_KEY = env.str(
+#     'AWS_CLOUDFRONT_KEY',
+#     multiline=True
+# ).encode('ascii')
+# print(AWS_CLOUDFRONT_KEY)
+# AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN')
+
+# Media files
+STORAGES = {
+    'default': {
+        'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage',
+        'OPTIONS': {
+            'bucket_name': AWS_STORAGE_BUCKET_NAME,
+            'location': 'media',
+        },
+    },
+    'staticfiles': {
+        'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage',
+        'OPTIONS': {
+            'bucket_name': AWS_STORAGE_BUCKET_NAME,
+            'location': 'static',
+        },
+    },
+}
+MEDIA_URL = "/media/"
+STATIC_URL = "/static/"
+
 
 AUTH_USER_MODEL = 'core.User'
 
+ACCOUNT_ADAPTER = 'core.adapter.CustomAccountAdapter'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# EMAIL_HOST = data.get('EMAIL_HOST')
-# EMAIL_PORT = data.get('EMAIL_PORT')
-# EMAIL_HOST_USER = data.get('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = data.get('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
+# Razorpay
+RAZORPAY_KEY_ID = env('RAZORPAY_ID')
+RAZORPAY_SECRET_KEY = env('RAZORPAY_ACCOUNT_ID')
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECURITY WARNING: don't run with debug turned on in production!
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+# redis m broker
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+# Redis for channel layer
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
