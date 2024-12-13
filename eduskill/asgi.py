@@ -20,7 +20,7 @@ application = ProtocolTypeRouter({
         URLRouter([
             path("ws/notification/", NotificationConsumer.as_asgi()),
             path("ws/chat/<str:room_id>/", ChatConsumer.as_asgi()),
-            path('ws/course_chat/<int:course_id>/',
+            path('ws/course_chat/<int:course_slug>/',
                  CourseChatConsumer.as_asgi()),
         ])
     ),

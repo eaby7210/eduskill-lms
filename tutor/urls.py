@@ -11,8 +11,7 @@ tutor_router = DefaultRouter()
 tutor_router.register(
     prefix='courses', viewset=views.CourseViewSet, basename='tutor_courses'
 )
-tutor_router.register(
-    r'tsfiles', viewset=views.TSFileViewSet, basename='tsfile')
+
 tutor_router.register(
     prefix='chats', viewset=views.TeacherChatViewSet, basename='tutor_chats'
 )

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from datetime import timedelta
+from urllib.parse import urlparse
 import environ
 import os
 from pathlib import Path
@@ -111,15 +112,15 @@ WSGI_APPLICATION = 'eduskill.wsgi.application'
 ASGI_APPLICATION = "eduskill.asgi.application"
 
 
+tmpPostgres = urlparse(env("DATABASE_URL"))
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'lms',
-        'HOST': 'host.docker.internal',
-        # 'HOST': 'localhost',
-        'USER': 'postgres',
-        'PASSWORD': '1234',
-        'port': '5432'
+        'NAME': tmpPostgres.path.replace('/', ''),
+        'USER': tmpPostgres.username,
+        'PASSWORD': tmpPostgres.password,
+        'HOST': tmpPostgres.hostname,
+        'PORT': 5432,
     }
 }
 

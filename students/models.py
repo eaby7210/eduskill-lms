@@ -167,6 +167,11 @@ class Order (models.Model):
         ('completed', 'Completed'),
         ('refunded', 'Refunded'),
     ]
+    REFUND_STATUS_CHOICES = [
+        ('no_refund', 'No Refund'),
+        ('partial_refund', 'Partial Refund'),
+        ('full_refund', 'Full Refund'),
+    ]
     student = models.ForeignKey(
         Student, on_delete=models.DO_NOTHING,
         related_name="orders"
@@ -182,6 +187,10 @@ class Order (models.Model):
         max_length=10, choices=ORDER_STATUS_CHOICES,
         default='pending'
     )
+    refund_status = models.CharField(
+        max_length=20, choices=REFUND_STATUS_CHOICES,
+        default='no_refund'
+    )
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     payable = models.DecimalField(max_digits=10, decimal_places=2)
     is_paid = models.BooleanField(default=False)
@@ -196,7 +205,19 @@ class Order (models.Model):
 
 
 class OrderItem(models.Model):
+    REFUND_STATUS_CHOICES = [
+        ('not_refunded', 'Not Refunded'),
+        ('refund_pending', 'Refund Pending'),
+        ('refunded', 'Refunded'),
+    ]
 
+    refund_status = models.CharField(
+        max_length=20, choices=REFUND_STATUS_CHOICES,
+        default='not_refunded'
+    )
+    refund_processed_at = models.DateTimeField(
+        null=True, blank=True
+    )
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE,
         related_name='items'
@@ -209,6 +230,16 @@ class OrderItem(models.Model):
         max_digits=7, decimal_places=2,
         help_text="Price of the course at the time of purchase"
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def can_be_refunded(self):
+        refund_window = self.order.created_at + timezone.timedelta(days=15)
+        return (
+            self.refund_status == 'not_refunded' and
+            self.refund_processed_at is None and
+            refund_window > timezone.now()
+        )
 
     def __str__(self):
         return f"OrderItem #{self.id} - {self.course.title}"
@@ -309,6 +340,7 @@ class CourseChatRoom(models.Model):
 
     class Meta:
         ordering = ['-updated_at']
+        unique_together = ['course']
 
     def __str__(self):
         return f"Course Chat: {self.course.title}"

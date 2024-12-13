@@ -11,7 +11,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from core.serializers import UserListSerializer
+from students.serializers import OrderSerializer, OrderListSerializer
 from tutor.serializers import (
     CourseSerializer, CourseListSerializer,
     CourseRetrivalSerializer,
@@ -258,3 +261,138 @@ class DashboardAPIView(APIView):
         }
 
         return Response(data)
+
+
+class OrderViewSet(ReadOnlyModelViewSet):
+    '''
+    Viewset for admin to manage and view orders.
+    '''
+
+    permission_classes = [IsAdminUser]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['status', 'is_paid', 'refund_status']
+    search_fields = [
+        'student__username', 'course__title',
+        'student__user__first_name',
+        'student__user__last_name',
+        'student__user__email',
+    ]
+    ordering_fields = ['items__update_at', 'created_at', 'total_amount']
+
+    def get_queryset(self):
+        Order = apps.get_model("students", "Order")
+        return Order.objects.all().select_related('student', 'address')
+
+    def get_serializer_class(self):
+        if self.action == 'retrive':
+            return OrderSerializer
+        return OrderListSerializer
+
+    @action(
+        detail=True, methods=['POST'],
+        permission_classes=[IsAdminUser]
+    )
+    @transaction.atomic
+    def process_refund(self, request, pk=None):
+        '''
+        Preocess a refund request for specific order
+        '''
+        Notification = apps.get_model('core', 'Notification')
+        order = self.get_object()
+        item_id = request.data.get('item_id')
+        refund_decision = request.data.get('decision')
+        OrderItem = apps.get_model('Students', 'OrderItem')
+        try:
+            try:
+                order_item = order.item.get(id=item_id)
+            except OrderItem.DoesNotExist:
+                return Response(
+                    {"error": "Order item not found."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            if order_item.refund_status != 'refund_pending':
+                return Response(
+                    {"error": "No pending refund request found."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            student_notification_message = (
+                f"Refund Request for Course: {
+                    order_item.course.title} has been "
+                f"{'Approved' if refund_decision == 'approve' else
+                    'Rejected'}."
+            )
+            Notification.objects.create(
+                sender=self.request.user,
+                receiver=order.student.user,
+                message=student_notification_message,
+                user_role='student'
+            )
+
+            # Process refund based on admin decision
+            if refund_decision == 'approve':
+                # Process full refund
+                self._approve_refund(order, order_item)
+
+                return Response({
+                    "message": "Refund approved and processed successfully.",
+                    "refund_amount": order_item.price
+                })
+
+            elif refund_decision == 'reject':
+                # Reject refund request
+                self._reject_refund(order, order_item)
+
+                return Response({
+                    "message": "Refund request rejected.",
+                })
+
+            else:
+                return Response(
+                    {"error": "Invalid refund decision.\
+                        Must be 'approve' or 'reject'."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        except Exception as e:
+            return Response(
+                {"error": f"Refund processing failed: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def _approve_refund(self, order, order_item):
+        """
+        Internal method to approve and process a refund
+        """
+
+        Wallet = apps.get_model('students', 'Wallet')
+        # Update order item refund status
+        order_item.refund_status = 'refunded'
+        order_item.refund_processed_at = timezone.now()
+        order_item.save()
+        # Create wallet transaction for refund
+        wallet = Wallet.objects.get(student=order.student)
+        wallet.wallet_balance = order_item.price
+        wallet.save()
+
+        # Update order refund status
+        remaining_items = order.items.exclude(refund_status='refunded')
+        if not remaining_items.exists():
+            order.refund_status = 'full_refund'
+        else:
+            order.refund_status = 'partial_refund'
+        order.save()
+
+        # Optional: Unenroll student from the course
+        order_item.course.enrolled_courses.filter(
+            student=order.student
+        ).delete()
+
+    def _reject_refund(self, order, order_item):
+        """
+        Internal method to reject a refund request
+        """
+        # Reset order item status to not_refunded
+        order_item.refund_status = 'not_refunded'
+        order_item.save()

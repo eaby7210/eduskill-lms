@@ -25,8 +25,8 @@ from tutor.models import Category, Lesson
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.pagination import PageNumberPagination
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -761,6 +761,80 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
                      },
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
+    @action(
+        detail=True,
+        methods=['POST'], permission_classes=[IsAuthenticated]
+    )
+    @transaction.atomic
+    def request_refund(self, request, pk=None):
+        """
+        Request a refund for a specific order item by a student
+        """
+        try:
+            # Get the order
+            order = self.get_object()
+
+            # Validate the student owns the order
+            if order.student != request.user.student:
+                return Response(
+                    {"error": "You are not authorized to request\
+                        a refund for this order."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            # Get the specific order item to refund
+            item_id = request.data.get('item_id')
+
+            # Find the specific order item
+            try:
+                order_item = order.items.get(id=item_id)
+            except OrderItem.DoesNotExist:
+                return Response(
+                    {"error": "Order item not found."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Check refund eligibility
+            if not order_item.can_be_refunded():
+                return Response(
+                    {"error": "This item is not eligible for refund.\
+                        Check refund policy."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Update order item status to refund pending
+            order_item.refund_status = 'refund_pending'
+            order_item.save()
+            Notification = apps.get_model('core', 'Notification')
+            User = apps.get_model('core', 'User')
+            superusers = User.objects.filter(is_superuser=True)
+            superuser_notification_message = (
+                f"New Refund Request for Order #{order.id}, "
+                f"Course: {order_item.course.title}, "
+                f"Student: {order.student.user.get_full_name(
+                ) or order.student.user.username}. "
+            )
+
+            for superuser in superusers:
+                Notification.objects.create(
+                    sender=self.request.user,
+                    receiver=superuser,
+                    message=superuser_notification_message,
+                    user_role='admin'
+                )
+
+            return Response(
+                {"message": "Refund request submitted successfully.\
+                    Admin will review your request."},
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": f"Refund request failed: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class MessagePagination(PageNumberPagination):
