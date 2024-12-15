@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-refresh/only-export-components */
 // import React from 'react'
 
@@ -7,6 +8,7 @@ import apiClient from "../apis/interceptors/axios";
 import store from "../apis/redux/store";
 import { userLogout } from "../apis/redux/User/userSlice";
 import { useSelector } from "react-redux";
+import { usePermissionCheck } from "../hooks/Hooks";
 
 export async function action({ request }) {
   const actionData = await request.formData();
@@ -62,6 +64,10 @@ export async function action({ request }) {
 }
 
 export function Component() {
+  const checkPermission = usePermissionCheck();
+  useEffect(() => {
+    checkPermission();
+  }, []);
   const navigation = useNavigation();
   const res = useActionData();
   const user = useSelector((state) => state.user);
@@ -116,7 +122,7 @@ export function Component() {
             <>
               <p>
                 <strong>Tutor Bio:</strong>{" "}
-                {user?.teacher_profile.bio || "No bio available"}
+                {user?.teacher_profile?.bio || "No bio available"}
               </p>
               <p>
                 <strong>Tutor Qualification:</strong>{" "}
@@ -126,7 +132,7 @@ export function Component() {
           ) : (
             <p>
               <strong>Student Bio:</strong>{" "}
-              {user?.student_profile.bio || "No bio available"}
+              {user?.student_profile?.bio || "No bio available"}
             </p>
           )}
         </div>

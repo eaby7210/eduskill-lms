@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 // import React from "react";
 
 import { useContext } from "react";
@@ -104,28 +103,32 @@ const CourseList = () => {
                           checked={true}
                         />
                       </li>
-                      {categories.map((category) => (
-                        <li key={category.id}>
-                          <Radio
-                            name={"category"}
-                            text={category.name}
-                            value={category.id}
-                          />
-                          {category.subcategories.length > 0 && (
-                            <ul>
-                              {category.subcategories.map((category) => (
-                                <li key={category.id}>
-                                  <Radio
-                                    name={"category"}
-                                    text={category.name}
-                                    value={category.id}
-                                  />
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </li>
-                      ))}
+                      {categories && (
+                        <>
+                          {categories.map((category) => (
+                            <li key={category.id}>
+                              <Radio
+                                name={"category"}
+                                text={category.name}
+                                value={category.id}
+                              />
+                              {category.subcategories.length > 0 && (
+                                <ul>
+                                  {category.subcategories.map((category) => (
+                                    <li key={category.id}>
+                                      <Radio
+                                        name={"category"}
+                                        text={category.name}
+                                        value={category.id}
+                                      />
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </li>
+                          ))}
+                        </>
+                      )}
                     </ul>
                   </div>
                 </details>

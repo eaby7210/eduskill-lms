@@ -5,8 +5,13 @@ import { userLoginApi } from "../apis/services/apiUser";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setUser } from "../apis/redux/User/userSlice";
+import { usePermissionCheck } from "../hooks/Hooks";
 
 const Login = () => {
+  const checkPermission = usePermissionCheck();
+
+  checkPermission("/user/", true);
+
   const [isloading, setLoading] = useState(false);
   const [form, setForm] = useState({
     identifier: "",

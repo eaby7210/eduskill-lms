@@ -1,10 +1,16 @@
-import { useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from "react";
 import { userSignupApi } from "../apis/services/apiUser";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setUser } from "../apis/redux/User/userSlice";
+import { usePermissionCheck } from "../hooks/Hooks";
 
 const Signup = () => {
+  const checkPermission = usePermissionCheck();
+  useEffect(() => {
+    checkPermission("/user/", true);
+  }, []);
   const [isloading, setLoading] = useState(false);
   const [form, setForm] = useState({
     first_name: "",
@@ -50,7 +56,7 @@ const Signup = () => {
       </h1>
       <div className="card bg-base-100 w-max max-w-xl shrink-0 shadow-2xl">
         <form className="card-body">
-          <div className="flex fex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             {/* First Name */}
             <div className="form-control">
               <label className="label">
@@ -98,7 +104,7 @@ const Signup = () => {
                 ))}
             </div>
           </div>
-          <div className="flex fex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             {/* Email */}
             <div className="form-control flex-grow">
               <label className="label">

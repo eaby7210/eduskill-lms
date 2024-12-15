@@ -20,7 +20,11 @@ const NavEnd = () => {
     <>
       <div className="flex flex-row gap-5 mx-2 py-3">
         {user.is_superuser && <Link to="/admin">Admin</Link>}
-        {user.teacher_profile?.id && <Link to="/tutor">Teacher</Link>}
+        {user.teacher_profile?.id ? (
+          <Link to="/tutor">Teacher</Link>
+        ) : (
+          <Link to="/become_tutor">Become Teacher</Link>
+        )}
         {user.student_profile?.id && <Link to="">My Learnings</Link>}
       </div>
       <div className="flex flex-row gap-5 mx-2">

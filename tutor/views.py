@@ -40,12 +40,10 @@ class TeacherView(APIView):
             user = User.objects.get(id=request.user.id)
             user.role = "TUTR"
             user.save()
-            # Save the new teacher profile if the data is valid
             serializer.save(user=user)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        # If the data is not valid, return the errors
         return Response({"errors": serializer.errors},
                         status=status.HTTP_400_BAD_REQUEST)
 

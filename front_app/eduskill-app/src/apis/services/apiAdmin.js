@@ -11,5 +11,10 @@ async function getCourses() {
   const res = await apiClient.get(urlstr);
   return res.data;
 }
+async function getCategory(id) {
+  const urlstr = `/myadmin/category/${id}`;
+  const res = await apiClient.get(urlstr);
+  return res.data;
+}
 
-export { getUsers, getCourses };
+export { getUsers, getCourses, getCategory };

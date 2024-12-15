@@ -1,8 +1,83 @@
-// import React from 'react'
+/* eslint-disable react-refresh/only-export-components */
+import { Link, useLoaderData } from "react-router-dom";
+import { usePermissionCheck } from "../hooks/Hooks";
+import apiClient from "../apis/interceptors/axios";
 
-import { Link } from "react-router-dom";
-
+export async function loader() {
+  const res = await apiClient("/user/dashboard/");
+  return res.data;
+}
 export function Component() {
+  usePermissionCheck()();
+  const data = useLoaderData();
+
+  // const data = {
+  //   courses: {
+  //     count_by_status: [
+  //       {
+  //         status: "active",
+  //         count: 3,
+  //       },
+  //       {
+  //         status: "completed",
+  //         count: 1,
+  //       },
+  //     ],
+  //     recent_courses: [
+  //       {
+  //         course__title: "Sit dolore delectus",
+  //         progress: 66.67,
+  //         status: "active",
+  //       },
+  //       {
+  //         course__title: "Qui pariatur Exerci",
+  //         progress: 16.67,
+  //         status: "active",
+  //       },
+  //       {
+  //         course__title: "Exercitationem cupid",
+  //         progress: 50.0,
+  //         status: "active",
+  //       },
+  //     ],
+  //   },
+  //   wallet: {
+  //     balance: 0.0,
+  //   },
+  //   notifications: [
+  //     {
+  //       message:
+  //         "Your course 'Explicabo Ratione o' has been approved and published to the public.",
+  //       timestamp: "2024-12-07T04:45:38.467043Z",
+  //       is_read: false,
+  //     },
+  //     {
+  //       message:
+  //         "Your course 'Explicabo Ratione o' has been approved and published to the public.",
+  //       timestamp: "2024-12-06T02:22:33.421078Z",
+  //       is_read: false,
+  //     },
+  //     {
+  //       message:
+  //         "Your course 'Fugit cillum quas i' has been approved and published to the public.",
+  //       timestamp: "2024-12-05T17:42:29.671236Z",
+  //       is_read: false,
+  //     },
+  //     {
+  //       message:
+  //         "Your course 'Proident odit incid' has been approved and published to the public.",
+  //       timestamp: "2024-12-04T10:35:45.961971Z",
+  //       is_read: false,
+  //     },
+  //     {
+  //       message:
+  //         "Your course 'Sit dolore delectus' has been approved and published to the public.",
+  //       timestamp: "2024-11-29T04:12:50.359416Z",
+  //       is_read: false,
+  //     },
+  //   ],
+  // };
+
   return (
     <div className="min-h-screen bg-base-200 p-5">
       <div className="container mx-auto">
@@ -14,11 +89,29 @@ export function Component() {
           </Link>
         </div>
 
+        {/* Stats Overview */}
+        <div className="stats stats-vertical lg:stats-horizontal shadow mb-8">
+          <div className="stat">
+            <div className="stat-title">Wallet Balance</div>
+            <div className="stat-value">${data.wallet.balance.toFixed(2)}</div>
+          </div>
+          {data.courses.count_by_status.map((status, index) => (
+            <div key={index} className="stat">
+              <div className="stat-title">
+                {status.status.charAt(0).toUpperCase() + status.status.slice(1)}{" "}
+                Courses
+              </div>
+              <div className="stat-value">{status.count}</div>
+            </div>
+          ))}
+        </div>
+
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Enrolled Courses Section */}
+          {/* Left Column */}
           <div className="col-span-1 lg:col-span-2">
-            <div className="card bg-base-300 shadow-lg">
+            {/* Enrolled Courses Section */}
+            <div className="card bg-base-300 shadow-lg mb-6">
               <div className="card-body">
                 <h2 className="card-title text-secondary">Enrolled Courses</h2>
                 <div className="overflow-x-auto">
@@ -27,159 +120,67 @@ export function Component() {
                       <tr>
                         <th>Course Name</th>
                         <th>Progress</th>
-                        <th>Actions</th>
+                        <th>Status</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {/* Loop through courses */}
-                      <tr>
-                        <td>React for Beginners</td>
-                        <td>
-                          <progress
-                            className="progress progress-primary w-56"
-                            value="70"
-                            max="100"
-                          ></progress>
-                        </td>
-                        <td>
-                          <Link
-                            to="/course/react-for-beginners"
-                            className="btn btn-secondary"
-                          >
-                            Continue
-                          </Link>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Advanced Python</td>
-                        <td>
-                          <progress
-                            className="progress progress-primary w-56"
-                            value="50"
-                            max="100"
-                          ></progress>
-                        </td>
-                        <td>
-                          <Link
-                            to="/course/advanced-python"
-                            className="btn btn-secondary"
-                          >
-                            Continue
-                          </Link>
-                        </td>
-                      </tr>
-                      {/* Add more courses */}
+                      {data.courses.recent_courses.map((course, index) => (
+                        <tr key={index}>
+                          <td>{course.course__title}</td>
+                          <td>
+                            <progress
+                              className="progress progress-primary w-56"
+                              value={course.progress}
+                              max="100"
+                            ></progress>
+                          </td>
+                          <td>{course.status}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Announcements Section */}
-          <div>
+            {/* Progress Overview Section */}
             <div className="card bg-base-300 shadow-lg">
               <div className="card-body">
-                <h2 className="card-title text-secondary">Announcements</h2>
-                <ul className="list-disc pl-5">
-                  <li className="mb-2">
-                    <span className="text-info font-bold">
-                      New Assignment:{" "}
-                    </span>
-                    Complete the JavaScript project by next week.
-                  </li>
-                  <li className="mb-2">
-                    <span className="text-info font-bold">New Course: </span>
-                    Data Science with Python is now available!
-                  </li>
-                  {/* Add more announcements */}
-                </ul>
-                <Link to="/announcements" className="btn btn-outline mt-4">
-                  View All
+                <h2 className="card-title text-secondary">Progress Overview</h2>
+                <div className="flex justify-between items-center">
+                  {data.courses.count_by_status.map((status, index) => (
+                    <p key={index} className="text-xl">
+                      {status.status.charAt(0).toUpperCase() +
+                        status.status.slice(1)}
+                      :<span className="font-bold">{status.count}</span>
+                    </p>
+                  ))}
+                </div>
+                <Link to="/progress" className="btn btn-outline mt-4">
+                  View Detailed Progress
                 </Link>
               </div>
             </div>
           </div>
 
-          {/* Assignments Section */}
-          <div className="col-span-1 lg:col-span-2">
-            <div className="card bg-base-300 shadow-lg">
-              <div className="card-body">
-                <h2 className="card-title text-secondary">
-                  Pending Assignments
-                </h2>
-                <div className="overflow-x-auto">
-                  <table className="table w-full">
-                    <thead>
-                      <tr>
-                        <th>Assignment</th>
-                        <th>Course</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {/* Loop through assignments */}
-                      <tr>
-                        <td>JavaScript Final Project</td>
-                        <td>React for Beginners</td>
-                        <td>2024-10-25</td>
-                        <td>
-                          <span className="badge badge-warning">
-                            Incomplete
-                          </span>
-                        </td>
-                        <td>
-                          <Link
-                            to="/assignments/js-project"
-                            className="btn btn-primary"
-                          >
-                            Submit
-                          </Link>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Python Machine Learning</td>
-                        <td>Advanced Python</td>
-                        <td>2024-11-10</td>
-                        <td>
-                          <span className="badge badge-error">Overdue</span>
-                        </td>
-                        <td>
-                          <Link
-                            to="/assignments/ml-assignment"
-                            className="btn btn-primary"
-                          >
-                            Submit
-                          </Link>
-                        </td>
-                      </tr>
-                      {/* Add more assignments */}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Progress Overview Section */}
+          {/* Right Column */}
           <div>
+            {/* Notifications Section */}
             <div className="card bg-base-300 shadow-lg">
               <div className="card-body">
-                <h2 className="card-title text-secondary">Progress Overview</h2>
-                <div className="flex justify-between items-center">
-                  <p className="text-xl">
-                    Courses Completed: <span className="font-bold">2/5</span>
-                  </p>
-                  <progress
-                    className="progress progress-accent w-48"
-                    value="40"
-                    max="100"
-                  ></progress>
-                </div>
-                <Link to="/progress" className="btn btn-outline mt-4">
-                  View Detailed Progress
+                <h2 className="card-title text-secondary">Notifications</h2>
+                <ul className="list-disc pl-5">
+                  {data.notifications.map((notification, index) => (
+                    <li key={index} className="mb-2">
+                      <span className="text-info font-bold">
+                        {new Date(notification.timestamp).toLocaleDateString()}:
+                      </span>
+                      {notification.message}
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/notifications" className="btn btn-outline mt-4">
+                  View All
                 </Link>
               </div>
             </div>

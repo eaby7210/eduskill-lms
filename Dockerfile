@@ -13,7 +13,7 @@ WORKDIR /app
 RUN apk update && \
     apk add --no-cache gcc musl-dev libffi-dev postgresql-dev libmagic python3-dev build-base \
     ffmpeg && \
-    rm -rf /var/cache/apk/*  # Clean up package manager cache
+    rm -rf /var/cache/apk/*
 
 # Install pipenv
 RUN pip install --upgrade pip --no-cache-dir && \

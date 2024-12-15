@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import Cart from "../svgs/Cart";
 import Heart from "../svgs/Heart";
 import { NavLink } from "react-router-dom";
+import Notifications from "./Notifications";
 
 export default function NavStore() {
   const wishList = useSelector((state) => state.wishList).wishList;
@@ -26,6 +27,7 @@ export default function NavStore() {
           count={wishList.length}
         />
       </NavLink>
+      <Notifications />
     </>
   );
 }

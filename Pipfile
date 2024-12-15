@@ -30,6 +30,7 @@ uvicorn = "*"
 boto3 = "*"
 django-storages = "*"
 django-environ = "*"
+websockets = "*"
 
 [dev-packages]
 

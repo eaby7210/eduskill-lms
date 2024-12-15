@@ -35,6 +35,9 @@ const AdminApp = () => {
                   <li>
                     <NavLink to="courses/">Course Management</NavLink>
                   </li>
+                  <li>
+                    <NavLink to="category/">Category Management</NavLink>
+                  </li>
                 </>
               ) : (
                 user.teacher_profile?.id && (

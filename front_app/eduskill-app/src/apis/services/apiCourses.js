@@ -19,7 +19,7 @@ async function getCourseList({ request }) {
   const urlstr = queryParams ? `/courses/?${queryParams}` : "/courses/";
   const res = await apiClient.get(urlstr);
   //   console.log(res);
-  return res.data;
+  return res?.data ? res.data : null;
 }
 
 async function getCourse({ params }) {
@@ -28,8 +28,8 @@ async function getCourse({ params }) {
   const urlstr = `/tutor/courses/${slug}`;
   const res = await apiClient.get(urlstr);
   //   console.log(urlstr);
-  //   console.log(res.data);
-  return res.data;
+  //   console.log(res.data?res.data:null);
+  return res?.data ? res.data : null;
 }
 
 async function updateCourse({ params, request }) {
@@ -43,7 +43,7 @@ async function updateCourse({ params, request }) {
       headers: { "Content-Type": "multipart/form-data" },
     });
     console.log(res);
-    return res.data;
+    return res?.data ? res.data : null;
   } catch (error) {
     return error.response.data;
   }
@@ -53,7 +53,7 @@ async function getTutorCourses() {
   const urlstr = `tutor/courses/`;
   const res = await apiClient.get(urlstr);
 
-  return res.data;
+  return res?.data ? res.data : null;
 }
 
 async function postCourse({ request }) {
@@ -97,9 +97,8 @@ async function getTutorCourseModules({ params }) {
   const slug = params.slug;
   const urlstr = `/tutor/courses/${slug}/modules`;
   const res = await apiClient.get(urlstr);
-  //   console.log(urlstr);
-  console.log(res.data);
-  return res.data;
+
+  return res?.data ? res.data : null;
 }
 
 export {

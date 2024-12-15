@@ -5,9 +5,12 @@ import Horse from "./svgs/horse";
 import NavEnd from "./components/NavEnd";
 import { NavLink } from "react-router-dom";
 import NavStore from "./components/NavStore";
+import { useSelector } from "react-redux";
+
 // import User from "./svgs/User";
 
 const Navbar = () => {
+  const user = useSelector((state) => state.user);
   return (
     <div className="navbar bg-base-100">
       <div className="navbar-start">
@@ -47,9 +50,11 @@ const Navbar = () => {
           <NavList />
         </ul>
       </div>
-      <div className="navbar-end flex gap-2 mx-1">
-        <NavStore />
-      </div>
+      {user?.pk && (
+        <div className="navbar-end flex gap-2 mx-1">
+          <NavStore />
+        </div>
+      )}
       <div className="navbar-end hidden lg:flex min-w-fit">
         <NavEnd />
       </div>

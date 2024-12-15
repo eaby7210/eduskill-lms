@@ -46,9 +46,7 @@ export default function Courses() {
           </tbody>
           {/* foot */}
           <tfoot>
-            <tr>
-              <TableHead />
-            </tr>
+            <TableHead />
           </tfoot>
         </table>
       </div>
@@ -75,13 +73,13 @@ function TableRowSkelton() {
           <div className="skeleton h-32 w-32"></div>
 
           <div className="w-2/3">
-            <div className="skeleton h-6 w-full"></div>
+            <span className="skeleton h-6 w-full"></span>
           </div>
         </div>
       </td>
       <td>
         <div className="w-2/3">
-          <div className="skeleton h-6 w-full"></div>
+          <span className="skeleton h-6 w-full"></span>
         </div>
         <br />
         <span className="badge badge-ghost badge-sm w-2/3">
@@ -90,7 +88,7 @@ function TableRowSkelton() {
       </td>
       <td>
         <div className="w-2/3">
-          <div className="skeleton h-6 w-full"></div>
+          <span className="skeleton h-6 w-full"></span>
         </div>
       </td>
       <th className="">

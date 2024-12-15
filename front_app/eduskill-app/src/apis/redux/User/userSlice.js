@@ -8,6 +8,7 @@ const initialUser = {
   pk: null,
   username: "",
   isLoading: false,
+  initial: true,
   image: null,
 };
 
@@ -17,6 +18,9 @@ const userSlice = createSlice({
   reducers: {
     setUser(state, action) {
       return { ...state, ...action.payload, isLoading: false };
+    },
+    userNomad() {
+      return { ...initialUser, initial: false };
     },
     userLogout() {
       localStorage.removeItem("access_token");
@@ -32,11 +36,6 @@ const userSlice = createSlice({
   },
 });
 
-export const {
-  setUser,
-  userLogout,
-  userLogin,
-  setLoading,
-  // setProfile
-} = userSlice.actions;
+export const { setUser, userLogout, userLogin, setLoading, userNomad } =
+  userSlice.actions;
 export default userSlice.reducer;

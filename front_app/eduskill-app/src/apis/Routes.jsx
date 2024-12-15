@@ -4,8 +4,6 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "../App.jsx";
 import AdminApp from "../AdminApp.jsx";
 import Error from "../assets/Error.jsx";
-import TDashboard from "../assets/tutor/Dashboard.jsx";
-import Courses from "../assets/tutor/Courses.jsx";
 import NewCourse from "../assets/tutor/NewCourse.jsx";
 
 import { InitialLoad } from "./services/apiUser.js";
@@ -18,10 +16,6 @@ import {
   updateCourse,
 } from "./services/apiCourses.js";
 import CourseForm from "../assets/tutor/CourseForm.jsx";
-import CoursePage from "../assets/tutor/CoursePage.jsx";
-import CoursePageForm from "../assets/tutor/CoursePageForm.jsx";
-import Curriculum from "../assets/tutor/Curriculum.jsx";
-import Publish from "../assets/tutor/Publish.jsx";
 import { getCourses, getUsers } from "./services/apiAdmin.js";
 
 const Home = lazy(() => import("../pages/Home.jsx"));
@@ -34,10 +28,19 @@ const Dashboard = lazy(() => import("../assets/admin/dashboard.jsx"));
 const UserManage = lazy(() => import("../assets/admin/UserManage.jsx"));
 const CourseManage = lazy(() => import("../assets/admin/CourseManage.jsx"));
 
+const TDashboard = lazy(() => import("../assets/tutor/Dashboard.jsx"));
+const Courses = lazy(() => import("../assets/tutor/Courses.jsx"));
+
+import CoursePage from "../assets/tutor/CoursePage.jsx";
+const CoursePageForm = lazy(() => import("../assets/tutor/CoursePageForm.jsx"));
+const Curriculum = lazy(() => import("../assets/tutor/Curriculum.jsx"));
+const Publish = lazy(() => import("../assets/tutor/Publish.jsx"));
+
 const router = createBrowserRouter([
   {
     element: <App />,
     loader: InitialLoad,
+    errorElement: <Error />,
 
     children: [
       {
@@ -65,6 +68,69 @@ const router = createBrowserRouter([
           </Suspense>
         ),
       },
+      {
+        path: "/become_tutor",
+        lazy: () => import("../pages/BTutor.jsx"),
+      },
+      // {
+      //   path: "/confirm_email/:key",
+      //   lazy: () => import("../pages/ConfirmEmail.jsx"),
+      //   errorElement: <Error />,
+      // },
+      {
+        path: "/checkout",
+        lazy: () => import("../pages/Checkout.jsx"),
+      },
+      // {
+      //   path: "/user/orders/:id",
+      //   lazy: () => import("../assets/OrderDetails.jsx"),
+      // },
+      // {
+      //   path: "/payment",
+      //   lazy: () => import("../assets/Payment.jsx"),
+      // },
+      {
+        path: "/courses",
+        element: (
+          <Suspense fallback={<span>Loading...</span>}>
+            <CourseList />
+          </Suspense>
+        ),
+        errorElement: <Error />,
+        loader: getCourseList,
+      },
+      {
+        path: "/courses/:slug/",
+        lazy: () => import("../pages/CourseP.jsx"),
+        errorElement: <Error />,
+        children: [
+          // {
+          //   path: "reviews",
+          //   lazy: () => import("../assets/components/Reviews.jsx"),
+          // },
+        ],
+      },
+      // {
+      //   path: "/courses/:slug/learn/",
+      //   lazy: () => import("../pages/CourseLearn.jsx"),
+      //   errorElement: <Error />,
+      //   children: [
+      //     {
+      //       path: "reviews",
+      //       lazy: () => import("../assets/components/Reviews.jsx"),
+      //     },
+      //     {
+      //       path: "chat",
+      //       lazy: () => import("../assets/Chat.jsx"),
+      //       children: [
+      //         {
+      //           path: ":id",
+      //           lazy: () => import("../assets/components/ChatMessages.jsx"),
+      //         },
+      //       ],
+      //     },
+      //   ],
+      // },
       {
         path: "/user",
         element: (
@@ -95,25 +161,14 @@ const router = createBrowserRouter([
             lazy: () => import("../assets/PurchaseHistory.jsx"),
           },
           {
+            path: "notification",
+            lazy: () => import("../assets/PurchaseHistory.jsx"),
+          },
+          {
             path: "settings",
             lazy: () => import("../assets/UserSettings.jsx"),
           },
         ],
-      },
-      {
-        path: "/courses",
-        element: (
-          <Suspense fallback={<span>Loading...</span>}>
-            <CourseList />
-          </Suspense>
-        ),
-        errorElement: <Error />,
-        loader: getCourseList,
-      },
-      {
-        path: "/courses/:slug/",
-        lazy: () => import("../pages/CourseP.jsx"),
-        errorElement: <Error />,
       },
       {
         path: "/admin",
@@ -149,24 +204,44 @@ const router = createBrowserRouter([
             path: "courses/:id",
             lazy: () => import("./../assets/admin/CoursePage.jsx"),
           },
+          {
+            path: "category",
+            lazy: () => import("./../assets/admin/Category.jsx"),
+          },
         ],
       },
       {
         path: "/tutor",
-        element: <AdminApp />,
+        element: (
+          <Suspense fallback={<span>Loading...</span>}>
+            <AdminApp />
+          </Suspense>
+        ),
         children: [
           {
             path: "",
-            element: <TDashboard />,
+            element: (
+              <Suspense fallback={<span>Loading...</span>}>
+                <TDashboard />
+              </Suspense>
+            ),
           },
           {
             path: "courses/",
-            element: <Courses />,
+            element: (
+              <Suspense fallback={<span>Loading...</span>}>
+                <Courses />
+              </Suspense>
+            ),
             loader: getTutorCourses,
           },
           {
             path: "courses/:slug",
-            element: <CoursePage />,
+            element: (
+              <Suspense fallback={<span>Loading...</span>}>
+                <CoursePage />
+              </Suspense>
+            ),
             action: updateCourse,
             loader: getCourse,
             children: [
@@ -184,6 +259,16 @@ const router = createBrowserRouter([
                 path: "publish/",
                 element: <Publish />,
               },
+              // {
+              //   path: "chat",
+              //   lazy: () => import("../assets/tutor/Chat.jsx"),
+              //   children: [
+              //     {
+              //       path: ":id",
+              //       lazy: () => import("../assets/tutor/ChatMessages.jsx"),
+              //     },
+              //   ],
+              // },
             ],
           },
           {
