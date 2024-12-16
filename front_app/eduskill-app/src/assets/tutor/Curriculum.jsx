@@ -1,6 +1,6 @@
 // import React from 'react'
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import ModuleCard from "./curriculum_asset/ModuleCard";
 import ModuleModal from "./curriculum_asset/ModuleModal";
 import LessonModal from "./curriculum_asset/LessonModal";
@@ -12,13 +12,19 @@ import {
   useRevalidator,
 } from "react-router-dom";
 import apiClient from "../../apis/interceptors/axios";
+import { useErrorHandler } from "../../hooks/Hooks";
+import appContext from "../../apis/Context";
 
 export default function Curriculum() {
   const modules = useLoaderData();
   const { courseData } = useOutletContext();
+  const { addToast } = useContext(appContext);
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const course = courseData;
+  console.log(course.status);
+  const handleError = useErrorHandler();
+  const [submitting, setSubmitting] = useState(false);
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
   const [disableModalData, setDisableModalData] = useState(null);
@@ -27,17 +33,21 @@ export default function Curriculum() {
 
   async function handlePublish() {
     const urlStr = `/tutor/courses/${course.slug}/publish/`;
+    setSubmitting(true);
     try {
       const res = await apiClient.post(urlStr);
       if (res.status >= 200 && res.status < 300) {
         revalidator.revalidate();
-        alert("Course Published");
+        addToast({
+          type: "success",
+          message: "Course Published Successfully",
+        });
         navigate(`/tutor/courses/${course.slug}/`);
       }
     } catch (error) {
-      console.log(error.response);
-      alert("Error in Publishing");
+      handleError(error);
     }
+    setSubmitting(false);
   }
 
   //Modules
@@ -110,13 +120,19 @@ export default function Curriculum() {
               <button
                 className="btn btn-accent w-full text-xl"
                 onClick={handlePublish}
+                disabled={submitting}
               >
-                Publish Course
+                {submitting ? "Please Wait..." : "Publish Course"}
               </button>
             ) : course.status === "published" ? (
-              <p>Course is published to public</p>
-            ) : course.status === "pending_approval" ? ( // Fixed this condition
-              <p>Requested for Approval</p>
+              <p className="text-info">Course is published to public</p>
+            ) : course.status === "pending_approval" ? (
+              <p className="text-warning">Requested for Approval</p>
+            ) : course.status === "blocked" ? (
+              <p className="text-error">
+                {" "}
+                Course is blocked. Edit the curriculum to Publish again
+              </p>
             ) : (
               ""
             )}

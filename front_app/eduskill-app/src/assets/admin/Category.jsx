@@ -7,7 +7,7 @@ import apiClient from "../../apis/interceptors/axios";
 import Headline from "./components/Headline";
 import { useContext, useState } from "react";
 import appContext from "../../apis/Context";
-import CategoryAddModal from "./components/CategoryAddModal";
+import CategoryAddModal from "./components/CategoryAddModal.jsx";
 import DisableModal from "./components/DisableModal";
 import { getCategory } from "../../apis/services/apiAdmin";
 import { useNavigationState } from "../../hooks/Hooks";

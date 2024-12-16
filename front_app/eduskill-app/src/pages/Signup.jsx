@@ -11,6 +11,7 @@ const Signup = () => {
   useEffect(() => {
     checkPermission("/user/", true);
   }, []);
+
   const [isloading, setLoading] = useState(false);
   const [form, setForm] = useState({
     first_name: "",

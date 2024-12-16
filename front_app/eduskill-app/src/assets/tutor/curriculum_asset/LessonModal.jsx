@@ -1,12 +1,17 @@
 /* eslint-disable react/prop-types */
 // import React from 'react'
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import apiClient from "../../../apis/interceptors/axios";
 import { useParams, useRevalidator } from "react-router-dom";
+import { useErrorHandler } from "../../../hooks/Hooks";
+import appContext from "../../../apis/Context";
 
 export default function LessonModal({ selectedLesson, closeLessonModal }) {
   console.log(selectedLesson);
+  const handleError = useErrorHandler();
+  const { addToast } = useContext(appContext);
+  const [submitting, setSubtting] = useState(false);
   const [lessonType, setLessonType] = useState(
     selectedLesson.lesson_type ? selectedLesson.lesson_type : "text"
   );
@@ -18,26 +23,28 @@ export default function LessonModal({ selectedLesson, closeLessonModal }) {
     const formData = new FormData(e.target);
     formData.append("lesson_type", lessonType);
     const urlStr = `/tutor/courses/${param.slug}/modules/${selectedLesson.module}/lessons/${selectedLesson.id}/`;
-
+    setSubtting(false);
     try {
-      // Send the form data with the file upload to the API
       const res = await apiClient.put(urlStr, formData, {
         headers: {
-          "Content-Type": "multipart/form-data", // Make sure the server processes it as form-data
+          "Content-Type": "multipart/form-data",
         },
       });
 
       if (res.status >= 200 && res.status < 300) {
         revalidator.revalidate();
         closeLessonModal();
-        alert("Lesson Updated");
+        addToast({
+          type: "success",
+          message: "Lesson updated successfully",
+        });
       } else {
         alert("Error in Module creation");
       }
     } catch (error) {
-      console.log(error.response);
-      alert("Error in Module creation");
+      handleError(error);
     }
+    setSubtting(true);
   }
 
   async function handleSubmit(e) {
@@ -45,28 +52,28 @@ export default function LessonModal({ selectedLesson, closeLessonModal }) {
     const formData = new FormData(e.target);
     formData.append("lesson_type", lessonType);
     const urlStr = `/tutor/courses/${param.slug}/modules/${selectedLesson.module}/lessons/`;
-    // for (let [key, value] of formData.entries()) {
-    //   console.log(`${key}:`, value);
-    // }
+    setSubtting(true);
     try {
-      // Send the form data with the file upload to the API
       const res = await apiClient.post(urlStr, formData, {
         headers: {
-          "Content-Type": "multipart/form-data", // Make sure the server processes it as form-data
+          "Content-Type": "multipart/form-data",
         },
       });
 
       if (res.status >= 200 && res.status < 300) {
         revalidator.revalidate();
         closeLessonModal();
-        alert("Lesson created");
+        addToast({
+          type: "success",
+          message: "Lesson created successfully",
+        });
       } else {
         alert("Error in Module creation");
       }
     } catch (error) {
-      console.log(error.response);
-      alert("Error in Module creation");
+      handleError(error);
     }
+    setSubtting(false);
   }
 
   return (
@@ -168,8 +175,12 @@ export default function LessonModal({ selectedLesson, closeLessonModal }) {
           )}
 
           <div className="modal-action">
-            <button type="submit" className="btn btn-primary">
-              Save
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={submitting}
+            >
+              {submitting ? "Saving..." : "Save"}
             </button>
             <button
               type="button"

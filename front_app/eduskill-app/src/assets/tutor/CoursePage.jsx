@@ -12,6 +12,7 @@ export default function CoursePage() {
   function activeClasses({ isActive }) {
     return isActive ? "tab-active" : "";
   }
+
   const actionData = useActionData();
   const params = useParams();
   const courseData = useLoaderData();

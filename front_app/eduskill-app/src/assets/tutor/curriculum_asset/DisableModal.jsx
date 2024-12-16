@@ -2,8 +2,14 @@
 
 import { useParams } from "react-router-dom";
 import apiClient from "../../../apis/interceptors/axios";
+import { useErrorHandler } from "../../../hooks/Hooks";
+import { useContext, useState } from "react";
+import appContext from "../../../apis/Context";
 
 export default function DisableModal({ data, closeDisableModal }) {
+  const handleError = useErrorHandler();
+  const { addToast } = useContext(appContext);
+  const [submitting, setSubmitting] = useState(false);
   const param = useParams();
   const typeHeading = data.type.charAt(0).toUpperCase() + data.type.slice(1);
 
@@ -16,26 +22,28 @@ export default function DisableModal({ data, closeDisableModal }) {
         : data.type == "module"
         ? moduleUrl
         : null;
+    setSubmitting(true);
     try {
-      console.log(lessonUrl);
-      console.log(moduleUrl);
       console.log(url);
       const res = await apiClient.post(url);
       if (res.status <= 200 && res.status < 300) {
-        alert(
-          `${typeHeading} is ${data.data.is_active ? "disabled" : "enabled"}`
-        );
+        addToast({
+          type: "success",
+          message: `${typeHeading} is ${
+            data.data.is_active ? "disabled" : "enabled"
+          }`,
+        });
         closeDisableModal();
       }
     } catch (error) {
-      console.log(error);
-      alert("Error in toggling Activation");
+      handleError(error);
     }
+    setSubmitting(false);
   }
 
   return (
     <>
-      <div className="modal modal-open">
+      <div className="modal modal-open modal-bottom md:modal-middle">
         <div className="modal-box">
           <h3 className="font-bold text-lg mb-4">{`${
             data.data.is_active ? "Disable" : "Enable"
@@ -52,12 +60,20 @@ export default function DisableModal({ data, closeDisableModal }) {
               close
             </button>
             {data?.data.is_active ? (
-              <button className="btn btn-sm btn-error" onClick={handleToggle}>
-                Disable
+              <button
+                className="btn btn-sm btn-error"
+                onClick={handleToggle}
+                disabled={submitting}
+              >
+                {submitting ? "Disabling..." : "Disable"}
               </button>
             ) : (
-              <button className="btn btn-sm btn-primary" onClick={handleToggle}>
-                Enable
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={handleToggle}
+                disabled={submitting}
+              >
+                {submitting ? "Enabling..." : "Enable"}
               </button>
             )}
           </div>

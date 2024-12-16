@@ -1,12 +1,14 @@
 /* eslint-disable react/prop-types */
 
-import { Link, useLoaderData, useRevalidator } from "react-router-dom";
+import { Link, useLoaderData, useNavigate } from "react-router-dom";
 import Headline from "./components/Headline";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import apiClient from "../../apis/interceptors/axios";
+import appContext from "../../apis/Context";
 
 const CourseManage = () => {
   const courses = useLoaderData();
+
   console.log(courses);
   return (
     <>
@@ -37,8 +39,9 @@ const CourseManage = () => {
 function CourseRow({ course }) {
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showBlockModal, setShowBlockModal] = useState(false);
-  const revalidator = useRevalidator();
 
+  const navigate = useNavigate();
+  const { addToast } = useContext(appContext);
   console.log(course);
   const handleApprove = async () => {
     const urlStr = `/myadmin/courses/${course.id}/publish/ `;
@@ -46,9 +49,14 @@ function CourseRow({ course }) {
     // console.log("Course Approved:", course.title);
     try {
       const res = await apiClient.post(urlStr);
-      revalidator.revalidate();
-      setShowApproveModal(false);
-      alert("Course Approved");
+      if (res.status >= 200 && res.status < 300) {
+        navigate("/admin/courses/");
+        setShowApproveModal(false);
+        addToast({
+          type: "success",
+          message: `Course Approved Successfully`,
+        });
+      }
     } catch (error) {
       console.log(error.response);
       alert("Error in Approval");
@@ -61,9 +69,14 @@ function CourseRow({ course }) {
     // console.log("Course Blocked:", course.title);
     try {
       const res = await apiClient.post(urlStr);
-      revalidator.revalidate();
-      setShowBlockModal(false);
-      alert("Course Blocked");
+      if (res.status >= 200 && res.status < 300) {
+        navigate("/admin/courses/");
+        setShowBlockModal(false);
+        addToast({
+          type: "warning",
+          message: `Course Blocked Successfully`,
+        });
+      }
     } catch (error) {
       console.log(error.response);
       alert("Error in Blocking");

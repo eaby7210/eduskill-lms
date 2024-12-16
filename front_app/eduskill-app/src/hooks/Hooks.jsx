@@ -148,7 +148,6 @@ export const useNavigationState = () => {
   };
 };
 
-// Permission check hook to validate user access to routes
 export const usePermissionCheck = () => {
   const { addToast } = useContext(appContext);
   const user = useSelector((state) => state.user);
@@ -156,32 +155,33 @@ export const usePermissionCheck = () => {
   const navigate = useNavigate();
 
   const checkPermission = (path = location.pathname, reverse = false) => {
-    // Determine user's role and permission level
     console.log(path);
-    const isAdmin = user?.is_superuser === true;
-    const isTutor = !!user?.teacher_profile?.id;
-    const isGeneralUser = !!user?.pk;
+    console.log(user?.initial);
+    if (!user?.initial) {
+      const isAdmin = user?.is_superuser === true;
+      const isTutor = !!user?.teacher_profile?.id;
+      const isGeneralUser = !!user?.pk;
 
-    // Check permission based on user type
-    const hasPermission =
-      (isAdmin && path.startsWith("/admin/")) ||
-      (isTutor && path.startsWith("/tutor/")) ||
-      (isGeneralUser && path.startsWith("/user/")) ||
-      false;
-    console.log(hasPermission);
-    // Apply reverse logic if needed
-    const finalPermission = reverse ? !hasPermission : hasPermission;
-    console.log(finalPermission);
-    // If no permission, redirect to appropriate page
-    if (!finalPermission) {
-      navigate(-1);
-      addToast({
-        type: "error",
-        message: "You are not Authorized to this page ",
-      });
+      const hasPermission =
+        (isAdmin && path.startsWith("/admin")) ||
+        (isTutor && path.startsWith("/tutor")) ||
+        (isGeneralUser && path.startsWith("/user")) ||
+        false;
+      console.log(hasPermission);
+
+      const finalPermission = reverse ? !hasPermission : hasPermission;
+      // console.log(finalPermission);
+
+      if (!finalPermission) {
+        navigate(-1);
+        addToast({
+          type: "error",
+          message: "You are not Authorized to this page ",
+        });
+      }
+
+      return finalPermission;
     }
-
-    return finalPermission;
   };
 
   return checkPermission;

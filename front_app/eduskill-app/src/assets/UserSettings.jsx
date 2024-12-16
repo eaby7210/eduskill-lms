@@ -65,9 +65,9 @@ export async function action({ request }) {
 
 export function Component() {
   const checkPermission = usePermissionCheck();
-  useEffect(() => {
-    checkPermission();
-  }, []);
+
+  checkPermission();
+
   const navigation = useNavigation();
   const res = useActionData();
   const user = useSelector((state) => state.user);

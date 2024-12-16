@@ -1,91 +1,112 @@
-// import React from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { useMemo } from "react";
+import { Link, useLoaderData, useNavigate } from "react-router-dom";
+import apiClient from "../apis/interceptors/axios";
 
-import { Link } from "react-router-dom";
+export async function loader() {
+  const res = await apiClient("/user/order/");
+  return res.data;
+}
 
 export function Component() {
+  const orders = useLoaderData();
+  const navigate = useNavigate();
+
+  // Memoized and processed orders
+  const processedOrders = useMemo(() => {
+    return orders.map((order) => ({
+      ...order,
+      formattedDate: new Date(order.order_date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    }));
+  }, [orders]);
+
+  // Handle row click to navigate to order details
+  const handleRowClick = (orderId) => {
+    navigate(`/user/orders/${orderId}`);
+  };
+
   return (
-    <div className="min-h-screen bg-base-200 p-5">
+    <div className="min-h-screen bg-gradient-to-br from-base-200 to-base-100 p-5">
       <div className="container mx-auto">
         {/* Page Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-primary">Purchase History</h1>
-          <Link to="/courses" className="btn btn-primary">
+          <Link to="/courses" className="btn btn-primary rounded-full">
             Browse More Courses
           </Link>
         </div>
 
-        {/* Purchase History List */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Purchase History Card */}
-          <div className="card bg-base-100 shadow-lg mb-4">
-            <div className="card-body">
-              <h2 className="card-title text-primary">
-                Full-Stack Web Development
-              </h2>
-              <p className="text-sm text-base-content mb-2">
-                Instructor: Alex Johnson
-              </p>
-              <p className="text-sm text-base-content mb-2">
-                Purchased on: Oct 12, 2023
-              </p>
-              <p className="text-sm text-base-content mb-4">
-                Order ID: #123456789
-              </p>
-
-              {/* Price and Status */}
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-bold text-base-content">
-                  $149.99
-                </span>
-                <span className="badge badge-success">Completed</span>
+        {/* Orders Table */}
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
+            {processedOrders.length === 0 ? (
+              <div className="alert alert-info shadow-lg">
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    className="stroke-current flex-shrink-0 w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
+                  </svg>
+                  <span>No purchase history found</span>
+                </div>
               </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="table table-zebra w-full">
+                  {/* Table Head */}
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Date</th>
+                      <th>Total Amount</th>
 
-              {/* View Details Button */}
-              <div className="mt-4">
-                <Link
-                  to="/course/full-stack-web-development"
-                  className="btn btn-secondary"
-                >
-                  View Course
-                </Link>
+                      <th>Payment</th>
+                      <th>Address</th>
+                    </tr>
+                  </thead>
+
+                  {/* Table Body */}
+                  <tbody>
+                    {processedOrders.map((order) => (
+                      <tr
+                        key={order.id}
+                        className="hover:bg-base-200 cursor-pointer transition-colors duration-200"
+                        onClick={() => handleRowClick(order.id)}
+                      >
+                        <td className="font-bold text-primary">#{order.id}</td>
+                        <td>{order.formattedDate}</td>
+                        <td>₹{parseFloat(order.total_amount).toFixed(2)}</td>
+
+                        <td>
+                          <span
+                            className={`badge ${
+                              order.is_paid ? "badge-primary" : "badge-warning"
+                            }`}
+                          >
+                            {order.is_paid ? "Paid" : "Pending"}
+                          </span>
+                        </td>
+                        <td className="text-sm">{order.address_details}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
-          </div>
-
-          {/* Another Purchase History Card */}
-          <div className="card bg-base-100 shadow-lg mb-4">
-            <div className="card-body">
-              <h2 className="card-title text-primary">
-                Data Science with Python
-              </h2>
-              <p className="text-sm text-base-content mb-2">
-                Instructor: Maria Smith
-              </p>
-              <p className="text-sm text-base-content mb-2">
-                Purchased on: Sep 18, 2023
-              </p>
-              <p className="text-sm text-base-content mb-4">
-                Order ID: #987654321
-              </p>
-
-              {/* Price and Status */}
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-bold text-base-content">
-                  $199.99
-                </span>
-                <span className="badge badge-warning">Pending</span>
-              </div>
-
-              {/* View Details Button */}
-              <div className="mt-4">
-                <Link
-                  to="/course/data-science-python"
-                  className="btn btn-secondary"
-                >
-                  View Course
-                </Link>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

@@ -17,7 +17,7 @@ const userSlice = createSlice({
   initialState: initialUser,
   reducers: {
     setUser(state, action) {
-      return { ...state, ...action.payload, isLoading: false };
+      return { ...state, ...action.payload, isLoading: false, initial: false };
     },
     userNomad() {
       return { ...initialUser, initial: false };

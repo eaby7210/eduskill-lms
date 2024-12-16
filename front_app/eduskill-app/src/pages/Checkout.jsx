@@ -1,4 +1,5 @@
-/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable react-hooks/exhaustive-deps */
+
 // import React from "react";
 
 import { useSelector } from "react-redux";
@@ -7,15 +8,17 @@ import apiClient from "../apis/interceptors/axios";
 import { useContext, useEffect } from "react";
 import appContext from "../apis/Context";
 import { usePermissionCheck } from "../hooks/Hooks";
+import { useErrorHandler } from "../hooks/Hooks";
 
 export function Component() {
   const navigate = useNavigate();
+  const handleError = useErrorHandler();
   const cartItems = useSelector((state) => state.cart.cart);
   const addToast = useContext(appContext).addToast;
   const checkPermission = usePermissionCheck();
   useEffect(() => {
-    checkPermission("/user");
-  }, [checkPermission]);
+    checkPermission("/user/");
+  }, []);
 
   const totalPrice = parseFloat(
     cartItems
@@ -55,22 +58,7 @@ export function Component() {
         // navigate("/payment");
       }
     } catch (error) {
-      // Handle unexpected errors, like network errors
-      if (error.response) {
-        // Server returned a response (e.g., validation errors)
-        addToast({
-          type: "error",
-          message:
-            error.response.data.error ||
-            "An error occurred while creating the order.",
-        });
-      } else {
-        // No response received (e.g., network error)
-        addToast({
-          type: "error",
-          message: "Network error. Please try again later.",
-        });
-      }
+      handleError(error);
     }
   }
 
@@ -236,40 +224,6 @@ export function Component() {
                         className="cursor-pointer"
                       >
                         Use Wallet Credit
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Payment Options */}
-                  <div className="mb-4">
-                    <label className="label">
-                      <span className="label-text">Payment Method</span>
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        id="creditCard"
-                        className="radio"
-                        value="creditCard"
-                      />
-                      <label
-                        htmlFor="creditCard"
-                        className="ml-2 cursor-pointer"
-                      >
-                        Credit Card
-                      </label>
-                    </div>
-                    <div className="flex gap-2 mt-2">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        id="paypal"
-                        className="radio"
-                        value="paypal"
-                      />
-                      <label htmlFor="paypal" className="ml-2 cursor-pointer">
-                        PayPal
                       </label>
                     </div>
                   </div>

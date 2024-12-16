@@ -79,7 +79,7 @@ export function Component() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-primary">My Cart</h1>
           {cart.length > 0 && (
-            <Link to="/courses" className="btn btn-primary">
+            <Link to="/checkout" className="btn btn-primary">
               Proceed to Checkout
             </Link>
           )}

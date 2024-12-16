@@ -1,11 +1,14 @@
 import { useContext } from "react";
-import { Form, useOutletContext } from "react-router-dom";
+import { Form, useNavigation, useOutletContext } from "react-router-dom";
 import appContext from "../../apis/Context";
 import CourseActiveModal from "./curriculum_asset/CourseActiveModal";
 
 export default function CoursePageForm() {
   const { actionData, courseData } = useOutletContext();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
   const course = courseData;
+  console.log(course.status);
   const categories = useContext(appContext).appState.categories;
   function openCourseModal() {
     document.getElementById("my_modal_1").showModal();
@@ -142,6 +145,16 @@ export default function CoursePageForm() {
           <div className="form-control">
             <label className="label">
               <span className="label-text">Course Thumbnail</span>
+              {""}
+              {course?.course_thumbnail && (
+                <a
+                  className="link-info"
+                  href={course?.course_thumbnail}
+                  target="_blank"
+                >
+                  Current Thumbnail
+                </a>
+              )}
             </label>
             <input
               type="file"
@@ -208,8 +221,19 @@ export default function CoursePageForm() {
 
           {/* Submit Button */}
           <div className="form-control">
-            <button type="submit" className="btn btn-primary">
-              Save Course
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="loading loading-dots loading-md"></span>{" "}
+                  {"Saving..."}
+                </>
+              ) : (
+                "Save Course"
+              )}
             </button>
           </div>
         </Form>

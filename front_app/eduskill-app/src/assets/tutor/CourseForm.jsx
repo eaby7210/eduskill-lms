@@ -1,12 +1,12 @@
-/* eslint-disable react/prop-types */
 // import React from "react";
 
 import { useContext } from "react";
-import { Form, useOutletContext } from "react-router-dom";
+import { Form, useNavigation, useOutletContext } from "react-router-dom";
 import appContext from "../../apis/Context";
 export default function CourseForm() {
   const actionData = useOutletContext();
-
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
   const categories = useContext(appContext).appState.categories;
 
   return (
@@ -182,8 +182,19 @@ export default function CourseForm() {
 
         {/* Submit Button */}
         <div className="form-control">
-          <button type="submit" className="btn btn-primary">
-            Save Course
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <span className="loading loading-dots loading-md"></span>{" "}
+                {"Saving..."}
+              </>
+            ) : (
+              "Save Course"
+            )}
           </button>
         </div>
       </Form>

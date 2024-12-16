@@ -92,9 +92,10 @@ export async function InitialLoad() {
 }
 export async function postCartItem(id) {
   const res = await apiClient.post("/user/cart/", { course: id });
-  console.log(res);
+  return res.data;
 }
 
 export async function postWishItem(id) {
-  await apiClient.post("user/wishlist/", { course: id });
+  const res = await apiClient.post("user/wishlist/", { course: id });
+  return res.data;
 }

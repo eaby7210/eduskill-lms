@@ -1,15 +1,17 @@
 /* eslint-disable react-refresh/only-export-components */
 // import React from 'react'
 
-import { Link, useLoaderData } from "react-router-dom";
+import { Link, useLoaderData, useNavigate } from "react-router-dom";
 import apiClient from "../apis/interceptors/axios";
 import Cart from "../assets/svgs/Cart";
 import Heart from "../assets/svgs/Heart";
 import { addCartItem, removeCartItem } from "../apis/redux/Cart/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem, removeItem } from "../apis/redux/Wishlist/wishSlice";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { postCartItem, postWishItem } from "../apis/services/apiUser";
+import { useErrorHandler } from "../hooks/Hooks";
+import appContext from "../apis/Context";
 
 export async function loader({ params }) {
   const urlStr = `/courses/${params.slug}/`;
@@ -18,17 +20,40 @@ export async function loader({ params }) {
 }
 
 export function Component() {
+  const handleError = useErrorHandler();
+  const { addToast } = useContext(appContext);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const course = useLoaderData();
   const wishList = useSelector((state) => state.wishList).wishList;
   const cart = useSelector((state) => state.cart.cart);
   const [isCartItem, setCartItem] = useState(false);
   const [isWishItem, setWishList] = useState(false);
-  const [modules, setModules] = useState(null);
+
   useEffect(() => {
     setCartItem(cart.some((cItem) => cItem.id === course.id));
     setWishList(wishList.some((wItem) => wItem.id === course.id));
   }, [cart, wishList, course.id]);
+
+  async function handleEnroll() {
+    try {
+      if (!course?.affected_price > 0) {
+        const res = await apiClient.post(`/courses/${course?.slug}/enroll/`);
+        if (res.status >= 200 && res.status < 300) {
+          addToast({
+            type: "success",
+            message: res.data.message,
+          });
+          navigate(`/courses/${course?.slug}`);
+        } else {
+          handleCartItem();
+          navigate("/checkout");
+        }
+      }
+    } catch (error) {
+      handleError(error);
+    }
+  }
   async function handleCartItem() {
     try {
       await postCartItem(course.id);
@@ -41,7 +66,7 @@ export function Component() {
         setCartItem(true);
       }
     } catch (error) {
-      alert(`Error: ${error.messsage}`);
+      handleError(error);
     }
   }
 
@@ -56,7 +81,7 @@ export function Component() {
         setWishList(true);
       }
     } catch (error) {
-      alert(`Error: ${error.messsage}`);
+      handleError(error);
     }
   }
 
@@ -93,40 +118,57 @@ export function Component() {
           </p>
 
           {/* Pricing */}
-          <div className="mt-4 flex flex-col md:flex-row items-start justify-between">
-            <p className="text-2xl font-bold">
-              ₹{" "}
-              {course?.discount_percent > 0
-                ? course?.affected_price
-                : course?.price}
-              {course?.discount_percent > 0 && (
-                <span className="line-through text-gray-500 ml-2">
-                  ₹ {course?.price}
-                </span>
+          {!course?.date_enrolled && (
+            <div className="mt-4 flex flex-col md:flex-row items-start justify-between">
+              {course?.affected_price > 0 ? (
+                <>
+                  <p className="text-2xl font-bold">
+                    ₹{" "}
+                    {course?.discount_percent > 0
+                      ? course?.affected_price
+                      : course?.price}
+                    {course?.discount_percent > 0 && (
+                      <span className="line-through text-gray-500 ml-2">
+                        ₹ {course?.price}
+                      </span>
+                    )}
+                  </p>
+                  <div className="card-actions">
+                    <button className="btn btn-ghost" onClick={handleCartItem}>
+                      <Cart h={"h-7"} w={"w-7"} indicator={isCartItem} />{" "}
+                      {isCartItem ? "Remove from Cart" : "Add to Cart"}
+                    </button>
+                    <button className="btn btn-ghost" onClick={handleWishItem}>
+                      <Heart h={"h-7"} w={"w-7"} indicator={isWishItem} />{" "}
+                      {isWishItem ? "Remove from WishList" : "Add to WishList"}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <p className="text-2xl font-bold">Free</p>
               )}
-            </p>
-            <div className="card-actions">
-              <button className="btn btn-ghost" onClick={handleCartItem}>
-                <Cart h={"h-7"} w={"w-7"} indicator={isCartItem} />{" "}
-                {isCartItem ? "Remove from Cart" : "Add to Cart"}
-              </button>
-              <button className="btn btn-ghost" onClick={handleWishItem}>
-                <Heart h={"h-7"} w={"w-7"} indicator={isWishItem} />{" "}
-                {isWishItem ? "Remove from WishList" : "Add to WishList"}
-              </button>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
       {/* Enrollment Button */}
       <div className="mt-6">
-        <Link
-          to={`/enroll/${course?.slug}`}
-          className="btn btn-accent w-full text-xl"
-        >
-          Enroll Now
-        </Link>
+        {course?.date_enrolled ? (
+          <Link
+            to={`/courses/${course?.slug}/learn`}
+            className="btn btn-accent w-full text-xl"
+          >
+            Go to Course
+          </Link>
+        ) : (
+          <button
+            onClick={handleEnroll}
+            className="btn btn-accent w-full text-xl"
+          >
+            Enroll Now
+          </button>
+        )}
       </div>
 
       <div

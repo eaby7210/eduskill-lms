@@ -81,14 +81,14 @@ const router = createBrowserRouter([
         path: "/checkout",
         lazy: () => import("../pages/Checkout.jsx"),
       },
-      // {
-      //   path: "/user/orders/:id",
-      //   lazy: () => import("../assets/OrderDetails.jsx"),
-      // },
-      // {
-      //   path: "/payment",
-      //   lazy: () => import("../assets/Payment.jsx"),
-      // },
+      {
+        path: "/user/orders/:id",
+        lazy: () => import("../assets/OrderDetails.jsx"),
+      },
+      {
+        path: "/payment",
+        lazy: () => import("../assets/Payment.jsx"),
+      },
       {
         path: "/courses",
         element: (
@@ -110,27 +110,31 @@ const router = createBrowserRouter([
           // },
         ],
       },
-      // {
-      //   path: "/courses/:slug/learn/",
-      //   lazy: () => import("../pages/CourseLearn.jsx"),
-      //   errorElement: <Error />,
-      //   children: [
-      //     {
-      //       path: "reviews",
-      //       lazy: () => import("../assets/components/Reviews.jsx"),
-      //     },
-      //     {
-      //       path: "chat",
-      //       lazy: () => import("../assets/Chat.jsx"),
-      //       children: [
-      //         {
-      //           path: ":id",
-      //           lazy: () => import("../assets/components/ChatMessages.jsx"),
-      //         },
-      //       ],
-      //     },
-      //   ],
-      // },
+      {
+        path: "/courses/:slug/learn/",
+        lazy: () => import("../pages/CourseLearn.jsx"),
+        errorElement: <Error />,
+        children: [
+          {
+            path: "",
+            lazy: () => import("../assets/components/Overview.jsx"),
+          },
+          {
+            path: "reviews",
+            lazy: () => import("../assets/components/Reviews.jsx"),
+          },
+          //     {
+          //       path: "chat",
+          //       lazy: () => import("../assets/Chat.jsx"),
+          //       children: [
+          //         {
+          //           path: ":id",
+          //           lazy: () => import("../assets/components/ChatMessages.jsx"),
+          //         },
+          //       ],
+          //     },
+        ],
+      },
       {
         path: "/user",
         element: (

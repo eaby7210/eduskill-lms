@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // import React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { userLoginApi } from "../apis/services/apiUser";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -9,8 +10,9 @@ import { usePermissionCheck } from "../hooks/Hooks";
 
 const Login = () => {
   const checkPermission = usePermissionCheck();
-
-  checkPermission("/user/", true);
+  useEffect(() => {
+    checkPermission("/user/", true);
+  }, []);
 
   const [isloading, setLoading] = useState(false);
   const [form, setForm] = useState({
