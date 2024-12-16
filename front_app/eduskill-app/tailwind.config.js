@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-const daisyui = require('daisyui');
+import daisyui from 'daisyui';
 
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -15,4 +15,4 @@ export default {
     logs: true,
     themeRoot: ":root",
   },
-}
+};
