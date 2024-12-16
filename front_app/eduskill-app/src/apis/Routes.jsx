@@ -24,7 +24,7 @@ const Signup = lazy(() => import("../pages/Signup.jsx"));
 const UserProfile = lazy(() => import("../pages/UserPage.jsx"));
 const CourseList = lazy(() => import("../pages/Course_List.jsx"));
 
-const Dashboard = lazy(() => import("../assets/admin/dashboard.jsx"));
+const Dashboard = lazy(() => import("../assets/admin/Dashboard.jsx"));
 const UserManage = lazy(() => import("../assets/admin/UserManage.jsx"));
 const CourseManage = lazy(() => import("../assets/admin/CourseManage.jsx"));
 
