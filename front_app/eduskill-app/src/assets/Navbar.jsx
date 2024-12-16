@@ -1,7 +1,7 @@
 // import React from "react";
 
 import NavList from "./components/NavList";
-import Horse from "./svgs/horse";
+import Horse from "./svgs/Horse.jsx";
 import NavEnd from "./components/NavEnd";
 import { NavLink } from "react-router-dom";
 import NavStore from "./components/NavStore";

@@ -1,6 +1,6 @@
 // import React from "react";
 
-import Horse from "./svgs/horse";
+import Horse from "./svgs/Horse.jsx";
 
 const Footer = () => {
   return (
