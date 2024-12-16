@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import ModuleCard from "./curriculum_asset/ModuleCard";
 import ModuleModal from "./curriculum_asset/ModuleModal";
 import LessonModal from "./curriculum_asset/LessonModal";
-import DisableModal from "./curriculum_asset/disableModal";
+import DisableModal from "./curriculum_asset/DisableModal";
 import {
   useLoaderData,
   useNavigate,
