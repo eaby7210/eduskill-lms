@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
 import { useState } from "react";
-import { useLoaderData, useParams, Form } from "react-router-dom";
+import { useLoaderData, useParams, Form, useNavigate } from "react-router-dom";
 import User from "../svgs/User";
 import apiClient from "../../apis/interceptors/axios";
 
@@ -27,11 +27,10 @@ export async function loader({ params }) {
 export function Component() {
   const { reviews, userReview } = useLoaderData();
   const { slug } = useParams();
-
+  const navigate = useNavigate();
   const [rating, setRating] = useState(userReview?.rating || 0);
   const [reviewText, setReviewText] = useState(userReview?.review || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
 
   // Render star rating
   const StarRating = ({
@@ -81,9 +80,9 @@ export function Component() {
         rating,
         review: reviewText,
       });
-
-      // Optionally, you might want to refresh the page or update the reviews list
-      window.location.reload();
+      if (response.status >= 200 && response.status < 300) {
+        navigate(`/courses/${slug}/learn/reviews`);
+      }
     } catch (error) {
       console.error("Error submitting review:", error);
       // Handle error (show toast, etc.)
@@ -116,69 +115,80 @@ export function Component() {
           </p>
         </div>
 
-        {/* Toggle Review Form Button */}
+        {/* Modal Toggle Button */}
         <button
-          onClick={() => setIsReviewFormOpen(!isReviewFormOpen)}
+          onClick={() => document.getElementById("review_modal").showModal()}
           className="btn btn-primary btn-outline"
         >
-          {isReviewFormOpen
-            ? "Cancel Review"
-            : userReview
-            ? "Edit Review"
-            : "Write a Review"}
+          {userReview ? "Edit Review" : "Write a Review"}
         </button>
 
-        {/* Submit Review Form */}
-        {isReviewFormOpen && (
-          <Form
-            method="post"
-            onSubmit={handleSubmit}
-            className="w-full max-w-md bg-base-100 p-6 rounded-xl shadow-md mt-4"
-          >
-            <h3 className="text-xl font-semibold mb-4">
+        {/* Review Modal */}
+        <dialog
+          id="review_modal"
+          className="modal modal-bottom md:modal-middle"
+        >
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-4">
               {userReview ? "Update Your Review" : "Write a Review"}
             </h3>
 
-            <div className="form-control mb-4">
-              <label className="label">
-                <span className="label-text">Your Rating</span>
-              </label>
-              <StarRating
-                rating={rating}
-                onChange={setRating}
-                editable={true}
-                className="mx-auto"
-              />
-            </div>
+            <Form method="post" onSubmit={handleSubmit} className="w-full">
+              <div className="form-control mb-4">
+                <label className="label">
+                  <span className="label-text">Your Rating</span>
+                </label>
+                <StarRating
+                  rating={rating}
+                  onChange={setRating}
+                  editable={true}
+                  className="mx-auto"
+                />
+              </div>
 
-            <div className="form-control mb-4">
-              <label className="label">
-                <span className="label-text">Your Review</span>
-              </label>
-              <textarea
-                className="textarea textarea-bordered h-24"
-                placeholder="Write your review here..."
-                value={reviewText}
-                onChange={(e) => setReviewText(e.target.value)}
-                required
-              ></textarea>
-            </div>
+              <div className="form-control mb-4">
+                <label className="label">
+                  <span className="label-text">Your Review</span>
+                </label>
+                <textarea
+                  className="textarea textarea-bordered h-24"
+                  placeholder="Write your review here..."
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  required
+                ></textarea>
+              </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary w-full"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <span className="loading loading-spinner"></span>
-              ) : userReview ? (
-                "Update Review"
-              ) : (
-                "Submit Review"
-              )}
-            </button>
-          </Form>
-        )}
+              <div className="modal-action">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <span className="loading loading-spinner"></span>
+                  ) : userReview ? (
+                    "Update Review"
+                  ) : (
+                    "Submit Review"
+                  )}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() =>
+                    document.getElementById("review_modal").close()
+                  }
+                >
+                  Cancel
+                </button>
+              </div>
+            </Form>
+          </div>
+          <form method="dialog" className="modal-backdrop">
+            <button>close</button>
+          </form>
+        </dialog>
       </div>
 
       {/* Reviews List */}

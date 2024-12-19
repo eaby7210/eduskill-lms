@@ -1,51 +1,48 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect, useMemo } from "react";
-import {
-  useLoaderData,
-  Outlet,
-  NavLink,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { useLoaderData, Outlet, NavLink } from "react-router-dom";
 import apiClient from "../apis/interceptors/axios";
+import { useErrorHandler, useNavigationState } from "../hooks/Hooks";
 
 export async function loader({ params }) {
   const res = await apiClient(`/courses/${params.slug}/`);
   return res.data;
 }
 
-// Helper function for active tab styling
 const activeClasses = ({ isActive }) => (isActive ? "tab-active" : "");
 
-// Separate Lesson Content Component
 const LessonContent = ({ lesson, onLessonComplete }) => {
+  console.log("dfasdfasdf");
+  const { setLoading, setIdle } = useNavigationState();
+  const handleError = useErrorHandler();
   const [lessonDetails, setLessonDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchLessonDetails = async () => {
       if (!lesson) return;
-
+      setLoading();
       try {
-        // Mark lesson as started
         await apiClient.post(`/user/lesson/${lesson.id}/lesson_started/`);
 
-        // Fetch lesson details
         const response = await apiClient.get(`/user/lesson/${lesson.id}/`);
         console.log("Lesson Details:", response.data);
         setLessonDetails(response.data);
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching lesson details:", error);
-        setIsLoading(false);
+        handleError(error);
       }
+      setIsLoading(false);
+      setIdle();
     };
 
     fetchLessonDetails();
   }, [lesson]);
 
   const handleLessonComplete = async () => {
+    setLoading();
     try {
       const response = await apiClient.post(
         `/user/lesson/${lesson.id}/lesson_completed/`
@@ -53,7 +50,9 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
       console.log("Lesson Completed:", response.data);
       onLessonComplete && onLessonComplete(lesson);
     } catch (error) {
-      console.error("Error marking lesson as completed:", error);
+      handleError(error);
+    } finally {
+      setIdle();
     }
   };
 
@@ -67,8 +66,10 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
 
   // Render lesson content based on type
   const renderLessonContent = () => {
+    console.log(lesson);
     if (!lessonDetails) return <div>No lesson details available</div>;
-
+    console.log(lesson.progress_status);
+    console.log(lesson.progress_status !== "completed");
     switch (lessonDetails.lesson_type) {
       case "video":
         return (
@@ -140,12 +141,15 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
                 </div>
               )}
 
-              <button
-                onClick={handleLessonComplete}
-                className="btn btn-primary btn-sm"
-              >
-                Mark as Completed
-              </button>
+              {lesson.progress_status !== "completed" && (
+                <button
+                  onClick={handleLessonComplete}
+                  className="btn btn-primary btn-sm"
+                  disabled={lesson.progress_status == "completed"}
+                >
+                  Mark as Completed
+                </button>
+              )}
             </div>
           </div>
         );
@@ -214,12 +218,14 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
               </div>
             )}
 
-            <button
-              onClick={handleLessonComplete}
-              className="btn btn-primary mt-4"
-            >
-              Mark as Completed
-            </button>
+            {lessonDetails.progress_status !== "completed" && (
+              <button
+                onClick={handleLessonComplete}
+                className="btn btn-primary btn-sm"
+              >
+                Mark as Completed
+              </button>
+            )}
           </div>
         );
 
@@ -249,17 +255,83 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
 };
 
 export function Component() {
-  const course = useLoaderData();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // State for current lesson and module
+  const courseData = useLoaderData();
+  const [course, setCourse] = useState(courseData);
   const [currentModule, setCurrentModule] = useState(course.modules[0] || null);
   const [currentLesson, setCurrentLesson] = useState(
     currentModule?.lessons[0] || null
   );
 
-  // Memoized modules and lessons for performance
+  const handleLessonComplete = (completedLesson) => {
+    // Update the lesson's progress status in the current module
+
+    const updatedModules = course.modules.map((module) => {
+      if (module.id === currentModule.id) {
+        return {
+          ...module,
+          lessons: module.lessons.map((lesson) =>
+            lesson.id === completedLesson.id
+              ? { ...lesson, progress_status: "completed" }
+              : lesson
+          ),
+        };
+      }
+      return module;
+    });
+
+    // Update the course object with new modules
+    setCourse((state) => {
+      return { ...state, modules: updatedModules };
+    });
+    const isLastLesson = updatedModules.every((module) =>
+      module.lessons.every((lesson) => lesson.progress_status === "completed")
+    );
+
+    if (isLastLesson) {
+      const firstModule = updatedModules[0];
+      const firstLesson = firstModule.lessons[0];
+      setCurrentModule(firstModule);
+      setCurrentLesson(firstLesson);
+      return;
+    }
+    // Find and set the next uncompleted lesson if available
+    const currentModuleIndex = updatedModules.findIndex(
+      (m) => m.id === currentModule.id
+    );
+    let nextLesson = null;
+    let nextModule = null;
+
+    // Look for next uncompleted lesson in current module
+    const remainingLessonsInModule = currentModule.lessons
+      .slice(
+        currentModule.lessons.findIndex((l) => l.id === completedLesson.id) + 1
+      )
+      .find((l) => l.progress_status !== "completed");
+
+    if (remainingLessonsInModule) {
+      nextLesson = remainingLessonsInModule;
+      nextModule = currentModule;
+    } else {
+      // Look for next module with uncompleted lessons
+      const nextModuleWithLessons = updatedModules
+        .slice(currentModuleIndex + 1)
+        .find((m) => m.lessons.some((l) => l.progress_status !== "completed"));
+
+      if (nextModuleWithLessons) {
+        nextModule = nextModuleWithLessons;
+        nextLesson = nextModuleWithLessons.lessons.find(
+          (l) => l.progress_status !== "completed"
+        );
+      }
+    }
+
+    // Update states if we found a next lesson
+    if (nextLesson && nextModule) {
+      setCurrentLesson(nextLesson);
+      setCurrentModule(nextModule);
+    }
+  };
+
   const processedModules = useMemo(() => {
     return course.modules.map((module) => ({
       ...module,
@@ -269,30 +341,13 @@ export function Component() {
     }));
   }, [course.modules]);
 
-  // Handle lesson selection and update
   const handleLessonSelect = (module, lesson) => {
     setCurrentModule(module);
     setCurrentLesson(lesson);
   };
 
-  // Handle lesson completion
-  const handleLessonComplete = (completedLesson) => {
-    // Update the lesson's progress status
-    const updatedModules = course.modules.map((module) => ({
-      ...module,
-      lessons: module.lessons.map((lesson) =>
-        lesson.id === completedLesson.id
-          ? { ...lesson, progress_status: "completed" }
-          : lesson
-      ),
-    }));
-
-    // Optionally, you might want to update the course state or trigger a refresh
-  };
-
   return (
     <div className="min-h-screen bg-base-200 flex flex-col">
-      {/* Main Content Area */}
       <div className="drawer drawer-end lg:drawer-open flex-grow">
         <input
           id="course-modules-drawer"
@@ -306,7 +361,7 @@ export function Component() {
           <div className="flex-grow p-4">
             <LessonContent
               lesson={currentLesson}
-              onLessonComplete={handleLessonComplete}
+              onLessonComplete={() => handleLessonComplete(currentLesson)}
             />
           </div>
 
@@ -339,7 +394,9 @@ export function Component() {
               >
                 <input type="checkbox" />
                 <div className="collapse-title flex justify-between items-center">
-                  <span>{module.title}</span>
+                  <span>
+                    {moduleIndex}. {module.title}
+                  </span>
                   <span className="badge badge-primary badge-sm">
                     {module.completedLessons}/{module.lessons.length}
                   </span>
@@ -384,7 +441,7 @@ export function Component() {
             { to: "", label: "Overview" },
 
             { to: "reviews", label: "Reviews" },
-            { to: "discussion", label: "Discussion" },
+            { to: "chat", label: "Discussion" },
           ].map(({ to, label }) => (
             <NavLink
               key={to}

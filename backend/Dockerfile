@@ -1,5 +1,5 @@
 # Base image using Alpine Linux and Python 3.12
-FROM python:3.12-alpine
+FROM python:3.12-alpine AS base
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -15,21 +15,29 @@ RUN apk update && \
     ffmpeg && \
     rm -rf /var/cache/apk/*
 
+# Create a non-root user
+RUN addgroup -S django && adduser -S django -G django
+
 # Install pipenv
 RUN pip install --upgrade pip --no-cache-dir && \
     pip install pipenv --no-cache-dir
 
-# Copy Pipfile and Pipfile.lock
-COPY Pipfile Pipfile.lock ./
+# Copy dependency files
+COPY --chown=django:django Pipfile Pipfile.lock ./
 
 # Install project dependencies
-RUN pipenv install --system --deploy
+RUN pipenv install --system --deploy --ignore-pipfile
 
 # Copy project files into the container
-COPY . .
+COPY --chown=django:django . .
 
-# Expose port 8000
+
+
+# Backend stage
+FROM base AS backend
 EXPOSE 8000
+CMD ["sh", "-c", "python manage.py migrate && uvicorn eduskill.asgi:application --host 0.0.0.0 --port 8000"]
 
-# Command to run migrations and start the development server
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000 && uvicorn eduskill.asgi:application --host 0.0.0.0 --port 8000"]
+# Celery stage
+FROM base AS celery
+CMD ["celery", "-A", "eduskill.celery:app", "worker", "--loglevel=info"]

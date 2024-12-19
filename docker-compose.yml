@@ -1,10 +1,13 @@
 services:
-  web:
-    build: .
-    command: sh -c "python manage.py migrate && uvicorn eduskill.asgi:application --host 0.0.0.0 --port 8000"
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: backend
+    # command: sh -c "python manage.py migrate && uvicorn eduskill.asgi:application --host 0.0.0.0 --port 8000"
     container_name: eduskill1
     volumes:
-      - .:/app
+      - ./backend:/app
     ports:
       - "8000:8000"
     depends_on:
@@ -13,6 +16,24 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - DATABASE_HOST=host.docker.internal
       - DATABASE_PORT=5432
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./front_app/eduskill-app
+      dockerfile: Dockerfile
+    container_name: eduskillf
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./front_app/eduskill-app/src:/app/src
+      - ./front_app/eduskill-app/public:/app/public
+      - ./front_app/eduskill-app/package.json:/app/package.json
+      - ./front_app/eduskill-app/vite.config.js:/app/vite.config.js
+      - ./front_app/eduskill-app/tailwind.config.js:/app/tailwind.config.js
+    depends_on:
+      - backend
+    restart: unless-stopped
 
   redis:
     image: redis:alpine
@@ -27,11 +48,16 @@ services:
       timeout: 10s
 
   celery:
-    build: .
-    command: celery -A eduskill.celery:app worker --loglevel=info
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: celery
     container_name: celery1
     volumes:
-      - .:/app
+      - ./backend:/app
     depends_on:
-      - web
+      - backend
       - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    restart: unless-stopped

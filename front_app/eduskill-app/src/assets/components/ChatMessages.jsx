@@ -1,11 +1,11 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import apiClient, { wsUrl } from "../../apis/interceptors/axios";
 import useWebSocket from "react-use-websocket";
-import { useLoaderData, useParams, useRevalidator } from "react-router-dom";
+import { useLoaderData, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 // Initialize dayjs relative time plugin
 dayjs.extend(relativeTime);
@@ -15,20 +15,38 @@ export async function loader({ params }) {
   console.log(res.data);
   return res.data;
 }
+
+const Message = ({ message, isOwnMessage, ref }) => (
+  <div ref={ref} className={`chat ${isOwnMessage ? "chat-end" : "chat-start"}`}>
+    <div className="chat-header">
+      {message.sender_name}
+      <time className="text-xs opacity-50 ml-1">
+        {dayjs(message.timestamp).fromNow()}
+      </time>
+    </div>
+    <div className={`chat-bubble ${isOwnMessage ? "chat-bubble-primary" : ""}`}>
+      {message.content}
+    </div>
+  </div>
+);
 export function Component() {
   const user = useSelector((state) => state.user);
-  const messages = useLoaderData();
+  const messagesData = useLoaderData();
+  const [messages, setMessages] = useState(messagesData);
 
   const [newMessage, setNewMessage] = useState("");
-  const revalidator = useRevalidator();
 
-  const formatTimestamp = (timestamp) => {
-    return dayjs(timestamp).fromNow();
-  };
+  // const formatTimestamp = (timestamp) => {
+  //   return dayjs(timestamp).fromNow();
+  // };
+
+  const { id } = useParams();
+
+  // const isCommunityChat = id === (messages[0]?.chat + 1).toString();
 
   const chatEndRef = useRef(null);
   const { sendJsonMessage, lastJsonMessage } = useWebSocket(
-    `${wsUrl}/ws/chat/${useParams().id}/`,
+    `${wsUrl}/ws/chat/${id}/`,
     {
       shouldReconnect: () => true,
       reconnectAttempts: 10,
@@ -42,15 +60,10 @@ export function Component() {
         interval: 15000, // Send heartbeat every 30 seconds
         timeout: 60000, // Wait 60 seconds for response
       },
-      onOpen: () => {
-        console.log("WebSocket Connected");
-      },
-      onClose: () => {
-        console.log("WebSocket Disconnected - Attempting to reconnect...");
-      },
-      onError: (error) => {
-        console.error("WebSocket Error:", error);
-      },
+      onOpen: () => console.log("WebSocket Connected"),
+      onClose: () =>
+        console.log("WebSocket Disconnected - Attempting to reconnect..."),
+      onError: (error) => console.error("WebSocket Error:", error),
     }
   );
 
@@ -66,9 +79,17 @@ export function Component() {
     if (lastJsonMessage) {
       console.log(lastJsonMessage);
     }
-    if (lastJsonMessage?.message !== "pong") {
-      revalidator.revalidate();
-      scrollToBottom();
+    // if (lastJsonMessage?.message !== "pong") {
+    if (lastJsonMessage?.type === "chat_message") {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          sender: lastJsonMessage.sender_id,
+          content: lastJsonMessage.message,
+          ...lastJsonMessage,
+        },
+      ]);
     }
   }, [lastJsonMessage]);
 
@@ -76,56 +97,48 @@ export function Component() {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    const newMsg = {
-      action: "chat_message",
-      message: newMessage.trim(),
-    };
-    sendJsonMessage(newMsg, true);
-    setNewMessage("");
-    revalidator.revalidate();
-  };
+    sendJsonMessage(
+      {
+        action: "chat_message",
+        message: newMessage.trim(),
+      },
+      true
+    );
 
+    setNewMessage("");
+  };
+  console.log(messages);
   return (
     <>
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`chat ${
-              message?.sender === user.pk ? "chat-end" : "chat-start"
-            }`}
-          >
-            <div className="chat-header">
-              {message?.sender_name}
-              <time className="text-xs opacity-50 ml-2">
-                {formatTimestamp(message.timestamp)}
-              </time>
-            </div>
-            <div className="chat-bubble">{message.content}</div>
-            <div className="chat-footer opacity-50">
-              {message.is_read ? "Seen" : "Delivered"}
-            </div>
-          </div>
-        ))}
-        <div ref={chatEndRef} />
-      </div>
-
-      {/* Message Input */}
-      <form onSubmit={handleSendMessage} className="p-4 bg-base-300">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            className="input input-bordered flex-1"
-            placeholder="Type your message here..."
-          />
-          <button type="submit" className="btn btn-primary">
-            Send
-          </button>
+      <div className="flex flex-col h-5/6">
+        <div className="flex-1 overflow-y-auto space-y-4 p-4">
+          {messages.map((message, index) => (
+            <Message
+              key={message.id}
+              message={message}
+              isOwnMessage={message.sender === user.pk}
+              ref={index === messages.length - 1 ? chatEndRef : null}
+            />
+          ))}
         </div>
-      </form>
+
+        {/* Message Input */}
+        <form onSubmit={handleSendMessage} className="border-t p-4 bg-base-300">
+          <div className=" w-full join">
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              className="input input-bordered flex-1 join-item"
+              placeholder="Type your message here..."
+            />
+            <button type="submit" className="btn btn-primary join-item">
+              Send
+            </button>
+          </div>
+        </form>
+      </div>
     </>
   );
 }

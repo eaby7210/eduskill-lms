@@ -123,16 +123,16 @@ const router = createBrowserRouter([
             path: "reviews",
             lazy: () => import("../assets/components/Reviews.jsx"),
           },
-          //     {
-          //       path: "chat",
-          //       lazy: () => import("../assets/Chat.jsx"),
-          //       children: [
-          //         {
-          //           path: ":id",
-          //           lazy: () => import("../assets/components/ChatMessages.jsx"),
-          //         },
-          //       ],
-          //     },
+          {
+            path: "chat",
+            lazy: () => import("../assets/Chat.jsx"),
+            children: [
+              {
+                path: ":id",
+                lazy: () => import("../assets/components/ChatMessages.jsx"),
+              },
+            ],
+          },
         ],
       },
       {
@@ -263,16 +263,16 @@ const router = createBrowserRouter([
                 path: "publish/",
                 element: <Publish />,
               },
-              // {
-              //   path: "chat",
-              //   lazy: () => import("../assets/tutor/Chat.jsx"),
-              //   children: [
-              //     {
-              //       path: ":id",
-              //       lazy: () => import("../assets/tutor/ChatMessages.jsx"),
-              //     },
-              //   ],
-              // },
+              {
+                path: "chat",
+                lazy: () => import("../assets/tutor/Chat.jsx"),
+                children: [
+                  {
+                    path: ":id",
+                    lazy: () => import("../assets/tutor/ChatMessages.jsx"),
+                  },
+                ],
+              },
             ],
           },
           {

@@ -143,7 +143,7 @@ class CourseChatConsumer(AsyncJsonWebsocketConsumer):
         if not await self.check_course_enrollment():
             await self.close()
             return
-            
+
         self.room_group_name = f'course_chat_{self.course_slug}'
 
         await self.channel_layer.group_add(
@@ -162,24 +162,21 @@ class CourseChatConsumer(AsyncJsonWebsocketConsumer):
     def check_course_enrollment(self):
         from django.apps import apps
         Course = apps.get_model('tutor', 'Course')
-        
 
         try:
             course = Course.objects.get(slug=self.course_slug)
-            
             Enrolment = apps.get_model('students', 'Enrolment')
-            
             if hasattr(self.scope['user'], 'student'):
                 return Enrolment.objects.filter(
-                    course=course, 
+                    course=course,
                     student=self.scope['user'].student,
                     status=Enrolment.ACTIVE
                 ).exists()
-            
+
             # If the user is a teacher of this course
             if hasattr(self.scope['user'], 'teacher'):
                 return course.teacher.user == self.scope['user']
-            
+
             return False
         except Course.DoesNotExist:
             return False
