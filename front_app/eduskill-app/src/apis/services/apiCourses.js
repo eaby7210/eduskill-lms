@@ -101,6 +101,11 @@ async function getTutorCourseModules({ params }) {
   return res?.data ? res.data : null;
 }
 
+async function tutorDashboard() {
+  const res = await apiClient.get("/tutor/dashboard");
+  return res.data;
+}
+
 export {
   getCourseList,
   postCourse,
@@ -108,4 +113,5 @@ export {
   getCourse,
   getTutorCourseModules,
   updateCourse,
+  tutorDashboard,
 };

@@ -31,17 +31,24 @@ export default function CoursePage() {
         </NavLink>
         <NavLink
           role="tab"
-          to={`/tutor/courses/${params.slug}/curriculum`} // Assuming you have a route for curriculum
+          to={`/tutor/courses/${params.slug}/curriculum`}
           className={({ isActive }) => `tab ${activeClasses({ isActive })}`}
         >
           Curriculum
         </NavLink>
         <NavLink
           role="tab"
-          to={`/tutor/courses/${params.slug}/publish`} // Assuming you have a route for publishing the course
+          to={`/tutor/courses/${params.slug}/publish`}
           className={({ isActive }) => `tab ${activeClasses({ isActive })}`}
         >
           Publish Course
+        </NavLink>
+        <NavLink
+          role="tab"
+          to={`/tutor/courses/${params.slug}/chat/`}
+          className={({ isActive }) => `tab ${activeClasses({ isActive })}`}
+        >
+          Chat
         </NavLink>
       </div>
       <div className="w-full">

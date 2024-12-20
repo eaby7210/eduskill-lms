@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useLoaderData, Outlet, NavLink } from "react-router-dom";
 import apiClient from "../apis/interceptors/axios";
 import { useErrorHandler, useNavigationState } from "../hooks/Hooks";
+import ReactHLsPlayer from "react-hls-player";
 
 export async function loader({ params }) {
   const res = await apiClient(`/courses/${params.slug}/`);
@@ -19,6 +20,8 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
   const handleError = useErrorHandler();
   const [lessonDetails, setLessonDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [videoUrl, setVideoUrl] = useState(null);
+  const blobUrlRef = useRef(null);
 
   useEffect(() => {
     const fetchLessonDetails = async () => {
@@ -30,6 +33,15 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
         const response = await apiClient.get(`/user/lesson/${lesson.id}/`);
         console.log("Lesson Details:", response.data);
         setLessonDetails(response.data);
+        if (response.data.video_content?.hls) {
+          const blob = new Blob([response.data.video_content.hls], {
+            type: "application/x-mpegURL",
+          });
+          const url = URL.createObjectURL(blob);
+          blobUrlRef.current = url;
+          setVideoUrl(url);
+        }
+
         setIsLoading(false);
       } catch (error) {
         handleError(error);
@@ -39,6 +51,12 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
     };
 
     fetchLessonDetails();
+    return () => {
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = null;
+      }
+    };
   }, [lesson]);
 
   const handleLessonComplete = async () => {
@@ -53,6 +71,25 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
       handleError(error);
     } finally {
       setIdle();
+    }
+  };
+
+  const VideoPlayer = () => {
+    if (!lessonDetails.video_content.hls) return null;
+
+    if (videoUrl && lessonDetails.video_content.hls) {
+      return (
+        <ReactHLsPlayer
+          src={videoUrl}
+          autoPlay={false}
+          controls={true}
+          width="100%"
+          height="auto"
+          className="max-w-full max-h-full"
+          poster={lessonDetails.video_content.thumbnail}
+          onEnded={handleLessonComplete}
+        />
+      );
     }
   };
 
@@ -77,20 +114,12 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
             {lessonDetails.video_content ? (
               <div className="relative aspect-video bg-base-200 flex items-center justify-center">
                 {/* Video Player */}
-                <video
-                  controls
-                  className="max-w-full max-h-full"
-                  src={lessonDetails.video_content.video_file}
-                  poster={lessonDetails.video_content.thumbnail}
-                  onEnded={handleLessonComplete}
-                >
-                  Your browser does not support the video tag.
-                </video>
 
                 {/* Overlay for additional context */}
-                <div className="absolute top-0 left-0 right-0 p-4 bg-black/30 text-white">
+                <div className="absolute top-0 left-0 right-0 px-4 py-1 bg-black/30 text-white">
                   <h2 className="text-xl font-bold">{lessonDetails.title}</h2>
                 </div>
+                <VideoPlayer />
               </div>
             ) : (
               <div className="alert alert-warning">

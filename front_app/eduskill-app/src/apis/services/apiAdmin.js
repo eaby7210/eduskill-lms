@@ -16,5 +16,8 @@ async function getCategory(id) {
   const res = await apiClient.get(urlstr);
   return res.data;
 }
-
-export { getUsers, getCourses, getCategory };
+async function adminDashboard() {
+  const res = await apiClient("/myadmin/dashboard/");
+  return res.data;
+}
+export { getUsers, getCourses, getCategory, adminDashboard };

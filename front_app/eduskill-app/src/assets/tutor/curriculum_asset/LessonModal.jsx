@@ -1,7 +1,8 @@
 /* eslint-disable react/prop-types */
 // import React from 'react'
 
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
+import ReactHLsPlayer from "react-hls-player";
 import apiClient from "../../../apis/interceptors/axios";
 import { useParams, useRevalidator } from "react-router-dom";
 import { useErrorHandler } from "../../../hooks/Hooks";
@@ -15,8 +16,52 @@ export default function LessonModal({ selectedLesson, closeLessonModal }) {
   const [lessonType, setLessonType] = useState(
     selectedLesson.lesson_type ? selectedLesson.lesson_type : "text"
   );
+  const [videoUrl, setVideoUrl] = useState(null);
   const param = useParams();
   const revalidator = useRevalidator();
+
+  useEffect(() => {
+    if (selectedLesson.video_content?.hls) {
+      // Create blob from HLS content
+      const blob = new Blob([selectedLesson.video_content.hls], {
+        type: "application/x-mpegURL",
+      });
+      const url = URL.createObjectURL(blob);
+      setVideoUrl(url);
+
+      // Cleanup
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    }
+  }, [selectedLesson.video_content]);
+
+  const VideoPlayer = () => {
+    if (!selectedLesson.video_content) return null;
+
+    if (videoUrl) {
+      return (
+        <ReactHLsPlayer
+          src={videoUrl}
+          autoPlay={false}
+          controls={true}
+          width="100%"
+          height="auto"
+          className="rounded-lg"
+        />
+      );
+    }
+
+    return (
+      <video
+        controls
+        className="w-full rounded-lg"
+        src={selectedLesson.video_content.video_file}
+      >
+        Your browser does not support the video tag.
+      </video>
+    );
+  };
 
   async function handleUpdate(e) {
     e.preventDefault();
@@ -77,8 +122,8 @@ export default function LessonModal({ selectedLesson, closeLessonModal }) {
   }
 
   return (
-    <div className="modal modal-open">
-      <div className="modal-box">
+    <div className="modal modal-open modal-bottom md:modal-middle">
+      <div className="modal-box man-w-3xl">
         <h3 className="font-bold text-lg mb-5">
           {selectedLesson.id
             ? `Edit Lesson ${selectedLesson.title}`
@@ -150,11 +195,16 @@ export default function LessonModal({ selectedLesson, closeLessonModal }) {
                   <span className="text-sm font-medium text-gray-600">
                     Current Video
                   </span>
-                  <video
-                    src={selectedLesson.video_content.video_file}
-                    className="w-full max-w-md rounded-lg shadow-md border border-gray-300"
-                    controls
-                  ></video>
+                  <div className="w-full max-w-md rounded-lg shadow-md border border-gray-300">
+                    {selectedLesson.id &&
+                      lessonType === "video" &&
+                      selectedLesson.video_content && (
+                        <>
+                          <h4 className="font-semibold mb-2">Preview:</h4>
+                          <VideoPlayer />
+                        </>
+                      )}
+                  </div>
                 </div>
               )}
               <input

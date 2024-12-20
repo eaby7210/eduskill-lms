@@ -107,6 +107,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         if action == "chat_message":
             message = content.get('message')
             if message and message.strip():
+
                 chat_message = await self.save_message(message)
 
             await self.channel_layer.group_send(
@@ -137,15 +138,15 @@ class CourseChatConsumer(AsyncJsonWebsocketConsumer):
         if not self.scope.get('user'):
             await self.close()
             return
-
+        print(self.scope.get("user"))
         self.course_slug = self.scope['url_route']['kwargs']['course_slug']
-
+        print(self.course_slug)
         if not await self.check_course_enrollment():
             await self.close()
             return
 
         self.room_group_name = f'course_chat_{self.course_slug}'
-
+        print(self.room_group_name)
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -153,10 +154,11 @@ class CourseChatConsumer(AsyncJsonWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, code):
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
+        if hasattr(self, 'room_group_name'):
+            await self.channel_layer.group_discard(
+                self.room_group_name,
+                self.channel_name
+            )
 
     @database_sync_to_async
     def check_course_enrollment(self):
@@ -170,7 +172,6 @@ class CourseChatConsumer(AsyncJsonWebsocketConsumer):
                 return Enrolment.objects.filter(
                     course=course,
                     student=self.scope['user'].student,
-                    status=Enrolment.ACTIVE
                 ).exists()
 
             # If the user is a teacher of this course
@@ -189,7 +190,7 @@ class CourseChatConsumer(AsyncJsonWebsocketConsumer):
         from django.apps import apps
         CourseChatRoom = apps.get_model('students', 'CourseChatRoom')
         CourseChatMessage = apps.get_model('students', 'CourseChatMessage')
-        room = CourseChatRoom.objects.get(course_slug=self.course_slug)
+        room = CourseChatRoom.objects.get(course__slug=self.course_slug)
         message = CourseChatMessage.objects.create(
             room=room,
             sender=self.scope['user'],

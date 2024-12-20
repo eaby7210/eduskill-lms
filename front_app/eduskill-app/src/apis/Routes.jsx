@@ -13,10 +13,11 @@ import {
   getTutorCourseModules,
   getTutorCourses,
   postCourse,
+  tutorDashboard,
   updateCourse,
 } from "./services/apiCourses.js";
 import CourseForm from "../assets/tutor/CourseForm.jsx";
-import { getCourses, getUsers } from "./services/apiAdmin.js";
+import { adminDashboard, getCourses, getUsers } from "./services/apiAdmin.js";
 
 const Home = lazy(() => import("../pages/Home.jsx"));
 const Login = lazy(() => import("../pages/Login.jsx"));
@@ -72,11 +73,11 @@ const router = createBrowserRouter([
         path: "/become_tutor",
         lazy: () => import("../pages/BTutor.jsx"),
       },
-      // {
-      //   path: "/confirm_email/:key",
-      //   lazy: () => import("../pages/ConfirmEmail.jsx"),
-      //   errorElement: <Error />,
-      // },
+      {
+        path: "/confirm_email/:key",
+        lazy: () => import("../pages/ConfirmEmail.jsx"),
+        errorElement: <Error />,
+      },
       {
         path: "/checkout",
         lazy: () => import("../pages/Checkout.jsx"),
@@ -130,6 +131,11 @@ const router = createBrowserRouter([
               {
                 path: ":id",
                 lazy: () => import("../assets/components/ChatMessages.jsx"),
+              },
+              {
+                path: "community",
+                lazy: () =>
+                  import("../assets/components/ChatCourseMessage.jsx"),
               },
             ],
           },
@@ -185,6 +191,7 @@ const router = createBrowserRouter([
                 <Dashboard />
               </Suspense>
             ),
+            loader: adminDashboard,
           },
           {
             path: "users/",
@@ -229,6 +236,7 @@ const router = createBrowserRouter([
                 <TDashboard />
               </Suspense>
             ),
+            loader: tutorDashboard,
           },
           {
             path: "courses/",

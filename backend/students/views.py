@@ -7,7 +7,7 @@ from .serializers import (
     OrderListSerializer, OrderSerializer,
     ReviewListSerializer, ReviewDetailSerializer,
     ChatMessageSerializer, ChatRoomSerializer,
-    CourseChatMessageSerializer, CourseChatRoomSerializer
+    CourseChatMessageSerializer
 )
 from tutor.serializers import (
     CategoryOpenListSerializer, CategorySerializer,
@@ -17,7 +17,7 @@ from tutor.serializers import (
 from .models import (
     CartItem, WishList, OrderItem, Order,
     Enrolment, LessonProgress, Address, RazorpayOrders,
-    Review, ChatRoom, ChatMessage, CourseChatMessage,
+    Review, ChatRoom, ChatMessage,
     CourseChatRoom
 )
 from rest_framework.views import APIView
@@ -35,6 +35,12 @@ from django.db import transaction
 from django.apps import apps
 from django.utils import timezone
 from .utils import client, key
+
+
+class MessagePagination(PageNumberPagination):
+    page_size = 50
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 class CartItemViewSet(mixins.CreateModelMixin,
@@ -630,6 +636,26 @@ class CourseOpenViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+    @action(detail=True, methods=['get'])
+    def messages(self, request, slug=None):
+        """Get chat messages for a course"""
+        try:
+            course = self.get_object()
+            chat_room = CourseChatRoom.objects.get(course=course)
+            messages = chat_room.messages.all().order_by('-timestamp')
+
+            paginator = MessagePagination()
+            paginated_messages = paginator.paginate_queryset(messages, request)
+            serializer = CourseChatMessageSerializer(
+                paginated_messages, many=True)
+
+            return paginator.get_paginated_response(serializer.data)
+        except CourseChatRoom.DoesNotExist:
+            return Response(
+                {"detail": "Chat room not found for this course."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
 
 class LessonViewSet(viewsets.ReadOnlyModelViewSet):
 
@@ -837,12 +863,6 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
 
-class MessagePagination(PageNumberPagination):
-    page_size = 50
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-
-
 class ChatRoomViewSet(viewsets.ModelViewSet):
     serializer_class = ChatRoomSerializer
     permission_classes = [IsAuthenticated]
@@ -915,28 +935,3 @@ class StudentDashboardAPIView(APIView):
         }
 
         return Response(data)
-
-
-class CourseChatRoomViewSet(viewsets.ModelViewSet):
-    serializer_class = CourseChatRoomSerializer
-    permission_classes = [IsAuthenticated]
-    http_method_names = ['get', 'post', 'head']
-
-    def get_queryset(self):
-        user = self.request.user
-        if hasattr(user, 'student'):
-            return CourseChatRoom.objects.filter(course__students=user.student)
-        return CourseChatRoom.objects.none()
-
-    def create(self, request, *args, **kwargs):
-        # Logic to create a new course chat room
-        pass
-
-    @action(detail=True, methods=['get'])
-    def messages(self, request, pk=None):
-        room = self.get_object()
-        messages_query = CourseChatMessage.objects.filter(room=room)
-        paginator = MessagePagination()
-        messages = paginator.paginate_queryset(messages_query, request)
-        serializer = CourseChatMessageSerializer(messages, many=True)
-        return Response(serializer.data)
