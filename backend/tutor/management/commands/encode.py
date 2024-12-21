@@ -20,7 +20,6 @@ class Command(BaseCommand):
         try:
             s3.download_file(settings.AWS_STORAGE_BUCKET_NAME,
                              s3_file_name, local_path)
-            print(f"Download Successful: {s3_file_name}")
             return True
         except FileNotFoundError:
             print("The file was not found")
@@ -34,7 +33,6 @@ class Command(BaseCommand):
         try:
             if os.path.exists(file_path):
                 os.remove(file_path)
-                print(f"Deleted local file: {file_path}")
             else:
                 print(f"File not found: {file_path}")
         except OSError as e:
@@ -44,7 +42,6 @@ class Command(BaseCommand):
         s3 = boto3.client('s3')
         try:
             s3.upload_file(file_path, bucket_name, s3_file_name)
-            print(f"Upload Successful: {s3_file_name}")
             return f'https://{bucket_name}.s3.amazonaws.com/{s3_file_name}'
         except FileNotFoundError:
             print("The file was not found")

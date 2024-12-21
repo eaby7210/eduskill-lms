@@ -155,8 +155,6 @@ export const usePermissionCheck = () => {
   const navigate = useNavigate();
 
   const checkPermission = (path = location.pathname, reverse = false) => {
-    console.log(path);
-    console.log(user?.initial);
     if (!user?.initial) {
       const isAdmin = user?.is_superuser === true;
       const isTutor = !!user?.teacher_profile?.id;
@@ -167,10 +165,8 @@ export const usePermissionCheck = () => {
         (isTutor && path.startsWith("/tutor")) ||
         (isGeneralUser && path.startsWith("/user")) ||
         false;
-      console.log(hasPermission);
 
       const finalPermission = reverse ? !hasPermission : hasPermission;
-      // console.log(finalPermission);
 
       if (!finalPermission) {
         navigate(-1);

@@ -151,8 +151,7 @@ class Course(models.Model):
             if previous_status == self.DRAFT and self.status in [
                 self.BLOCKED, self.PUBLISHED
             ]:
-                print("sfgsdfgsdfgsdfgsdfg")
-                print(self.status)
+
                 raise ValidationError(
                     "You can only move from 'Draft' to 'Pending Approval'."
                 )

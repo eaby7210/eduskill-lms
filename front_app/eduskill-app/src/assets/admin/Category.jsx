@@ -22,7 +22,6 @@ export async function loader() {
 }
 
 export function Component() {
-  console.log(navigation);
   const categoryData = useLoaderData();
   const addToast = useContext(appContext).addToast;
   const [addModel, setAddModal] = useState(false);

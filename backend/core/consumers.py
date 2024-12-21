@@ -95,8 +95,8 @@ class NotificationConsumer(AsyncJsonWebsocketConsumer):
             # Admins receive all notifications
             if 'admin' in self.user_groups:
                 should_send = True
-            print(should_send)
-            print(event['message'])
+            # print(should_send)
+            # print(event['message'])
             if should_send:
                 await self.send_json({
                     'type': 'notification',

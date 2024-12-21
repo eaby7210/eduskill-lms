@@ -10,7 +10,6 @@ export function Component() {
   const handleError = useErrorHandler();
   const navigate = useNavigate();
   const cart = useSelector((state) => state.cart.cart);
-  console.log(cart);
   const orderDetails = location.state?.orderDetails;
   const [isLoading, setIsLoading] = useState(false);
 

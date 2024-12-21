@@ -18,17 +18,13 @@ async function getCourseList({ request }) {
   // Build the URL string
   const urlstr = queryParams ? `/courses/?${queryParams}` : "/courses/";
   const res = await apiClient.get(urlstr);
-  //   console.log(res);
   return res?.data ? res.data : null;
 }
 
 async function getCourse({ params }) {
-  //   const url = new URL(request.url);
   const slug = params.slug;
   const urlstr = `/tutor/courses/${slug}`;
   const res = await apiClient.get(urlstr);
-  //   console.log(urlstr);
-  //   console.log(res.data?res.data:null);
   return res?.data ? res.data : null;
 }
 
@@ -42,7 +38,6 @@ async function updateCourse({ params, request }) {
     const res = await apiClient.put(urlstr, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    console.log(res);
     return res?.data ? res.data : null;
   } catch (error) {
     return error.response.data;
@@ -75,7 +70,6 @@ async function postCourse({ request }) {
   );
   courseData.append("teacher", user?.teacher_profile?.id);
   const thumbnail = formData.get("course_thumbnail");
-  console.log(thumbnail);
   if (thumbnail && thumbnail.size > 0) {
     courseData.append("course_thumbnail", thumbnail);
   }
@@ -87,7 +81,6 @@ async function postCourse({ request }) {
     });
     return redirect(`/tutor/courses/${res.data.slug}/curriculum/`);
   } catch (error) {
-    console.log(error.response.data);
     return error.response.data;
   }
 }

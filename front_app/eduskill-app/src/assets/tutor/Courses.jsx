@@ -30,7 +30,6 @@ export default function Courses() {
   const navigation = useNavigation();
   const isLoading = navigation.state === "loading";
   const data = useLoaderData();
-  console.log(data);
   return (
     <>
       <Headline headline={"My Courses"} />

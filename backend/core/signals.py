@@ -23,7 +23,7 @@ def send_notification(sender, instance, created, **kwargs):
             'is_read': instance.is_read,
             'user_role': instance.user_role
         }
-        print(notification_data)
+        # print(notification_data)
         # Send to user-specific group
         async_to_sync(channel_layer.group_send)(
             f'notification_{instance.receiver_id}',

@@ -5,8 +5,6 @@ import { useRevalidator } from "react-router-dom";
 import apiClient from "../../../apis/interceptors/axios";
 
 export default function CourseActiveModal({ is_active, courseSlug }) {
-  console.log(is_active);
-  console.log(courseSlug);
   const revalidator = useRevalidator();
   async function handleActivation() {
     try {

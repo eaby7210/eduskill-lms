@@ -9,7 +9,6 @@ import appContext from "../../apis/Context";
 const CourseManage = () => {
   const courses = useLoaderData();
 
-  console.log(courses);
   return (
     <>
       <Headline headline={"Course Manage"} />
@@ -42,7 +41,6 @@ function CourseRow({ course }) {
 
   const navigate = useNavigate();
   const { addToast } = useContext(appContext);
-  console.log(course);
   const handleApprove = async () => {
     const urlStr = `/myadmin/courses/${course.id}/publish/ `;
     // Logic to approve the course
@@ -66,7 +64,6 @@ function CourseRow({ course }) {
   const handleBlock = async () => {
     const urlStr = `/myadmin/courses/${course.id}/block/`;
     // Logic to block the course
-    // console.log("Course Blocked:", course.title);
     try {
       const res = await apiClient.post(urlStr);
       if (res.status >= 200 && res.status < 300) {

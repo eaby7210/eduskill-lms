@@ -2,8 +2,6 @@
 
 // import React from 'react'
 export default function ModuleList({ module, index }) {
-  //   console.log(module);
-
   return (
     <>
       <div className="my-7 w-full">
@@ -61,7 +59,6 @@ export default function ModuleList({ module, index }) {
 }
 
 function LessonItem({ lesson, index }) {
-  console.log(lesson);
   return (
     <>
       <div className="collapse collapse-plus border-slate-200 rounded-sm">

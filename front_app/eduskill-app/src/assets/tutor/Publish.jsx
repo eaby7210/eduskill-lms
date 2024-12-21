@@ -5,12 +5,6 @@ import { useOutletContext } from "react-router-dom";
 export default function Publish() {
   const { courseData } = useOutletContext();
   const course = courseData;
-  console.log(course);
-
-  async function handleSubmit() {
-    const urlStr = `/tutor/courses/deserunt-magni-inven/`;
-    console.log(urlStr);
-  }
 
   return (
     <>
@@ -18,7 +12,7 @@ export default function Publish() {
       {course.status == "draft" ? (
         <button
           className="btn btn-accent w-full text-xl"
-          onClick={handleSubmit}
+          // onClick={handleSubmit}
         >
           Publish Course
         </button>

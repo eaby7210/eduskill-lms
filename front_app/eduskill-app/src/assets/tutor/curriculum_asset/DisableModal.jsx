@@ -24,7 +24,6 @@ export default function DisableModal({ data, closeDisableModal }) {
         : null;
     setSubmitting(true);
     try {
-      console.log(url);
       const res = await apiClient.post(url);
       if (res.status <= 200 && res.status < 300) {
         addToast({

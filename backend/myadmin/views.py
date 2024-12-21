@@ -146,7 +146,6 @@ class ModuleViewSet(ReadOnlyModelViewSet):
             video_content = VideoContent.objects.get(lesson_id=lesson_id)
 
             if video_content.status != "Completed":
-                print(video_content.status)
                 return Response(
                     {'error': 'Video is not processed yet.'},
                     status=status.HTTP_400_BAD_REQUEST

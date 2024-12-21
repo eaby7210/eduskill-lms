@@ -70,7 +70,6 @@ function CartCard({ cartItem }) {
 
 export function Component() {
   const cart = useSelector((state) => state.cart.cart);
-  console.log(cart);
 
   return (
     <div className="min-h-screen bg-base-200 p-5">

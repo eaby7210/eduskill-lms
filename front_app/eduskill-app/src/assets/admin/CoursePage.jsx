@@ -15,7 +15,6 @@ export function Component() {
   async function getModuleList() {
     setLoading(true);
     const res = await apiClient.get(`/myadmin/courses/${course.id}/modules/`);
-    console.log(res.data);
     setModuleList(res.data);
     setLoading(false);
   }
@@ -23,7 +22,6 @@ export function Component() {
   const handleApprove = async () => {
     const urlStr = `/myadmin/courses/${course.id}/publish/ `;
     // Logic to approve the course
-    // console.log("Course Approved:", course.title);
     try {
       const res = await apiClient.post(urlStr);
       if (res.status >= 200 && res.status < 300) {
@@ -39,7 +37,6 @@ export function Component() {
   const handleBlock = async () => {
     const urlStr = `/myadmin/courses/${course.id}/block/`;
     // Logic to block the course
-    // console.log("Course Blocked:", course.title);
     try {
       const res = await apiClient.post(urlStr);
       if (res.status >= 200 && res.status < 300) {

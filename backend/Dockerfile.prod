@@ -9,11 +9,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /build
 
-# # Install build dependencies
-# RUN apk update && \
-#     apk add --no-cache gcc musl-dev libffi-dev postgresql-dev libmagic python3-dev build-base \
-#     ffmpeg && \
-#     rm -rf /var/cache/apk/*
+# Install build dependencies
+RUN apk update && \
+    apk add --no-cache postgresql-dev python3-dev build-base ffmpeg && \
+    rm -rf /var/cache/apk/*
 
 # Install pipenv and dependencies
 RUN pip install --no-cache-dir pipenv
@@ -39,6 +38,7 @@ WORKDIR /app
 RUN apk add --no-cache \
     postgresql-libs \
     ffmpeg \
+    tmux\
     libmagic \
     && rm -rf /var/cache/apk/*
 
@@ -60,15 +60,11 @@ RUN mkdir -p /app/media /app/static && \
 # Switch to non-root user
 USER django
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
 
-# Create separate targets for web and celery
-FROM scratch AS web
-COPY --from=0 / /
+RUN  chmod +x /entrypoint.sh
+
+# Expose port
 EXPOSE 8000
-CMD ["sh", "-c", "python manage.py migrate && uvicorn eduskill.asgi:application --host 0.0.0.0 --port 8000 --workers 2 --limit-max-requests 1000"]
 
-FROM scratch AS celery
-COPY --from=0 / /
-CMD ["celery", "-A", "eduskill.celery:app", "worker", "--loglevel=info", "--concurrency=2", "--max-tasks-per-child=100", "--optimization=fair"]
+# Set entrypoint
+ENTRYPOINT ["/entrypoint.sh"]

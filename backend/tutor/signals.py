@@ -9,9 +9,7 @@ User = settings.AUTH_USER_MODEL
 
 @receiver(post_save, sender=VideoContent)
 def video_handler(sender, instance, created, **kwargs):
-    print("singal")
     if created and instance.status == 'pending':
-        print(instance.status)
         try:
             encode_video_task.delay(instance.id)
         except Exception as e:

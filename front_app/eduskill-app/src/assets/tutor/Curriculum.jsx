@@ -22,7 +22,6 @@ export default function Curriculum() {
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const course = courseData;
-  console.log(course.status);
   const handleError = useErrorHandler();
   const [submitting, setSubmitting] = useState(false);
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);

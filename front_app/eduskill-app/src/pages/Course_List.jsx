@@ -12,7 +12,6 @@ const CourseList = () => {
   const navigation = useNavigation();
   const isLoading = navigation.state === "loading";
   const data = useLoaderData();
-  // console.log(categories);
   return (
     <section className="container max-w-screen-2xl  mx-auto p-2">
       <div className="drawer lg:drawer-open">

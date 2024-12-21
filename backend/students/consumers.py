@@ -31,31 +31,27 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 'enrollment__course__teacher'
             ).get(id=self.room_id)
             user = self.scope['user']
-            # print(f"Checking access for user: {user.username}")
-            # print(f"Is authenticated: {user.is_authenticated}")
-            # print(f"Has student attr: {hasattr(user, 'student')}")
-            # print(f"Has teacher attr: {hasattr(user, 'teacher')}")
 
             if not user.is_authenticated:
-                print("User not authenticated")
+                # print("User not authenticated")
                 return False
             result = False
             if hasattr(user, 'student'):
                 result = room.enrollment.student.user == user
-                print(f"Student access check result: {result}")
+                # print(f"Student access check result: {result}")
                 if result:
-                    print(f"Student {user.username} has access to room {
-                          self.room_id}")
+                    # print(f"Student {user.username} has access to room {
+                    #   self.room_id}")
                     return result
 
             if hasattr(user, 'teacher'):
                 result = room.enrollment.course.teacher.user == user
-                print(f"Teacher access check result: {result}")
+                # print(f"Teacher access check result: {result}")
                 if result:
-                    print(f"Teacher {user.username} has access to room {
-                          self.room_id}")
-                    print(f"Room course teacher: {
-                          room.enrollment.course.teacher.user.username}")
+                    # print(f"Teacher {user.username} has access to room {
+                    #   self.room_id}")
+                    # print(f"Room course teacher: {
+                    #   room.enrollment.course.teacher.user.username}")
                     return result
 
             return result
@@ -85,7 +81,6 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             content=content
         )
         receiver = self.scope['user']
-        print(self.scope['user'])
         if room.enrollment.course.teacher.user.id == self.scope['user']:
             receiver = room.enrollment.student.user
         else:
@@ -138,15 +133,12 @@ class CourseChatConsumer(AsyncJsonWebsocketConsumer):
         if not self.scope.get('user'):
             await self.close()
             return
-        print(self.scope.get("user"))
         self.course_slug = self.scope['url_route']['kwargs']['course_slug']
-        print(self.course_slug)
         if not await self.check_course_enrollment():
             await self.close()
             return
 
         self.room_group_name = f'course_chat_{self.course_slug}'
-        print(self.room_group_name)
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name

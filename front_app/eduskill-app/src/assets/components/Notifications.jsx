@@ -134,7 +134,6 @@ const Notifications = () => {
     if (lastMessage !== null) {
       const data = JSON.parse(lastMessage.data);
 
-      // console.log(data.message);
       if (data.message !== "pong") {
         // Update notifications state with new notification
         setNotifications((prev) => ({

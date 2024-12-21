@@ -47,17 +47,13 @@ const UserManage = () => {
   }
   async function hanndleUserBlock(user) {
     try {
-      const res = await apiClient.post(
-        `/myadmin/users/${user.id}/toggle_activation/`
-      );
-      console.log(res);
+      await apiClient.post(`/myadmin/users/${user.id}/toggle_activation/`);
       document.getElementById("my_modal_2").close();
       revalidator.revalidate();
     } catch (error) {
       console.log(error);
     }
   }
-  console.log(data);
   return (
     <>
       <Headline headline={"User Manage"} />
@@ -87,7 +83,6 @@ const UserManage = () => {
 };
 
 function Modal({ data, handleUserBlock }) {
-  console.log(data);
   return (
     <>
       <dialog id="my_modal_2" className="modal">

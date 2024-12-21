@@ -12,7 +12,6 @@ dayjs.extend(relativeTime);
 
 export async function loader({ params }) {
   const res = await apiClient(`/user/chats/${params.id}/messages/`);
-  console.log(res.data);
   return res.data;
 }
 
@@ -77,19 +76,18 @@ export function Component() {
 
   useEffect(() => {
     if (lastJsonMessage) {
-      console.log(lastJsonMessage);
-    }
-    // if (lastJsonMessage?.message !== "pong") {
-    if (lastJsonMessage?.type === "chat_message") {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          sender: lastJsonMessage.sender_id,
-          content: lastJsonMessage.message,
-          ...lastJsonMessage,
-        },
-      ]);
+      // if (lastJsonMessage?.message !== "pong") {
+      if (lastJsonMessage?.type === "chat_message") {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now(),
+            sender: lastJsonMessage.sender_id,
+            content: lastJsonMessage.message,
+            ...lastJsonMessage,
+          },
+        ]);
+      }
     }
   }, [lastJsonMessage]);
 

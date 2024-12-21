@@ -12,15 +12,13 @@ import { usePermissionCheck } from "../hooks/Hooks";
 
 export async function action({ request }) {
   const actionData = await request.formData();
-  console.log(actionData.get("image"));
   if (actionData.get("form") === "pass_change") {
     const formData = new FormData();
     formData.append("current_password", actionData.get("current_password"));
     formData.append("new_password1", actionData.get("new_password1"));
     formData.append("new_password2", actionData.get("new_password2"));
     try {
-      const res = await apiClient.post("auth/password/change/", formData);
-      console.log(res);
+      await apiClient.post("auth/password/change/", formData);
       store.dispatch(userLogout());
       return redirect("/login");
     } catch (error) {
@@ -41,7 +39,6 @@ export async function action({ request }) {
       formData.append("qualifications", actionData.get("qualifications"));
     }
     const image = actionData.get("image");
-    console.log(image.size);
     if (image && image.size > 0) {
       formData.append("image", image);
     }
@@ -53,10 +50,8 @@ export async function action({ request }) {
         },
       });
 
-      console.log(res);
       return { status: parseInt(res.status / 100), data: res.data };
     } catch (error) {
-      console.log(error.response.data);
       return { status: 4, data: error.response.data };
     }
   }
@@ -74,7 +69,6 @@ export function Component() {
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const isSubmitting = navigation.state === "submitting";
-  console.log(user.role);
   const closeProfileModal = () => setProfileModalOpen(false);
   const closePasswordModal = () => setPasswordModalOpen(false);
   const [response, setResponse] = useState(null);
@@ -82,7 +76,6 @@ export function Component() {
     if (res && res?.status != 2) {
       setResponse(res.data);
     } else if (res) {
-      console.log(res.data);
       closeProfileModal();
     }
   }, [res]);

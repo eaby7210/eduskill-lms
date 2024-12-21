@@ -13,10 +13,7 @@ export function Component() {
     setIsLoading(true);
     try {
       const formData = new FormData(e.currentTarget);
-      console.log(formData.get("qualification"));
-      for (const [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
+
       const res = await apiClient.post("/tutor/become_tutor/", formData);
       if (res.status >= 200 && res.status < 300) {
         revalidator.revalidate();

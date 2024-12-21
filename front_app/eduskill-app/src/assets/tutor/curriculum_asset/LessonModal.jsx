@@ -9,7 +9,6 @@ import { useErrorHandler } from "../../../hooks/Hooks";
 import appContext from "../../../apis/Context";
 
 export default function LessonModal({ selectedLesson, closeLessonModal }) {
-  console.log(selectedLesson);
   const handleError = useErrorHandler();
   const { addToast } = useContext(appContext);
   const [submitting, setSubtting] = useState(false);

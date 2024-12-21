@@ -69,7 +69,6 @@ function WishlistCard({ wishlistItem }) {
 // WishlistComponent Template
 export function Component() {
   const wishList = useSelector((state) => state.wishList.wishList);
-  console.log(wishList);
 
   return (
     <div className="min-h-screen bg-base-200 p-5">

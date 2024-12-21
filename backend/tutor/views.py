@@ -189,7 +189,6 @@ class LessonViewSet(ModelViewSet):
     serializer_class = LessonSerializer
 
     def get_queryset(self):
-        # print(self.kwargs['module_pk'])
         return Lesson.objects.filter(module__id=self.kwargs['module_pk'])
 
     def create(self, request, *args, **kwargs):
@@ -198,7 +197,6 @@ class LessonViewSet(ModelViewSet):
         (TextContent/VideoContent)
         """
         data = {key: request.data.get(key) for key in request.data.keys()}
-        # print(data)
         lesson_type = data.get('lesson_type')
 
         if lesson_type == 'text' and not data.get('content'):
@@ -353,7 +351,6 @@ class LessonViewSet(ModelViewSet):
             video_content = VideoContent.objects.get(lesson_id=lesson_id)
 
             if video_content.status != "Completed":
-                print(video_content.status)
                 return Response(
                     {'error': 'Video is not processed yet.'},
                     status=status.HTTP_400_BAD_REQUEST
@@ -406,7 +403,6 @@ class TeacherChatViewSet(ReadOnlyModelViewSet):
 
         # Get the course ID from query params if provided
         course_id = self.request.query_params.get('course_slug')
-        print(course_id)
         queryset = ChatRoom.objects.filter(
             enrollment__course__teacher=user.teacher)
 

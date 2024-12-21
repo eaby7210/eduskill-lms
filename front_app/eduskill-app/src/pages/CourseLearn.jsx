@@ -15,7 +15,6 @@ export async function loader({ params }) {
 const activeClasses = ({ isActive }) => (isActive ? "tab-active" : "");
 
 const LessonContent = ({ lesson, onLessonComplete }) => {
-  console.log("dfasdfasdf");
   const { setLoading, setIdle } = useNavigationState();
   const handleError = useErrorHandler();
   const [lessonDetails, setLessonDetails] = useState(null);
@@ -31,7 +30,6 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
         await apiClient.post(`/user/lesson/${lesson.id}/lesson_started/`);
 
         const response = await apiClient.get(`/user/lesson/${lesson.id}/`);
-        console.log("Lesson Details:", response.data);
         setLessonDetails(response.data);
         if (response.data.video_content?.hls) {
           const blob = new Blob([response.data.video_content.hls], {
@@ -62,10 +60,7 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
   const handleLessonComplete = async () => {
     setLoading();
     try {
-      const response = await apiClient.post(
-        `/user/lesson/${lesson.id}/lesson_completed/`
-      );
-      console.log("Lesson Completed:", response.data);
+      await apiClient.post(`/user/lesson/${lesson.id}/lesson_completed/`);
       onLessonComplete && onLessonComplete(lesson);
     } catch (error) {
       handleError(error);
@@ -103,10 +98,7 @@ const LessonContent = ({ lesson, onLessonComplete }) => {
 
   // Render lesson content based on type
   const renderLessonContent = () => {
-    console.log(lesson);
     if (!lessonDetails) return <div>No lesson details available</div>;
-    console.log(lesson.progress_status);
-    console.log(lesson.progress_status !== "completed");
     switch (lessonDetails.lesson_type) {
       case "video":
         return (

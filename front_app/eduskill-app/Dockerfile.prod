@@ -9,22 +9,21 @@ FROM node:20-alpine3.19 AS builder
 #     g++ \
 #     libc6-compat
 
-# Set environment variables
-ENV NODE_ENV=production \
-    NPM_CONFIG_LOGLEVEL=error \
-    NPM_CONFIG_COLOR=false
 
-# Set working directory
+
+
 WORKDIR /app
 
-
-# Install dependencies first (better layer caching)
-COPY package.json  ./
-RUN npm install -g vite
-RUN npm install --legacy-peer-deps --silent
+COPY package.json package-lock.json* ./
+RUN npm cache clean --force
+RUN npm install --verbose \
+    --prefer-offline \
+    --no-audit \
+    --legacy-peer-deps \
+    --force
 
 COPY . .
-
+RUN npm rebuild
 
 # Build the application
 RUN npm run build

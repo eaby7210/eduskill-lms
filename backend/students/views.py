@@ -474,8 +474,7 @@ class CourseOpenViewSet(viewsets.ReadOnlyModelViewSet):
             course.discount_percent is not None and
             course.discount_percent < 100
         ):
-            print(course.price != 0.00)
-            print(course.discount_percent != 100)
+
             return Response(
                 {'error': 'Course is not available for Free.'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -724,7 +723,7 @@ class LessonViewSet(viewsets.ReadOnlyModelViewSet):
         total_lessons = enrolment.lesson_progress.count()
         completed_lessons = enrolment.lesson_progress.filter(
             status='completed').count()
-        print(f'{total_lessons} - {completed_lessons}')
+
         if total_lessons > 0:
             progress_percentage = (completed_lessons / total_lessons) * 100
         else:

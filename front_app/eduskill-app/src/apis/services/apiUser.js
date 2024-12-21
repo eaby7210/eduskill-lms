@@ -5,7 +5,6 @@ import { setWishList } from "../redux/Wishlist/wishSlice";
 
 async function getCart() {
   const res = await apiClient.get("/user/cart/");
-  console.log(res);
   if (res.status >= 200 && res.status < 300) {
     store.dispatch(setCart(res.data));
   }
@@ -41,7 +40,6 @@ export async function userLoginApi(data) {
 export async function userSignupApi(data) {
   try {
     const res = await apiClient.post("/auth/register/", data);
-    // console.log(res);
     return { status: res.status, res: res.data };
   } catch (error) {
     return { status: error.response.status, res: error.response.data };
@@ -51,7 +49,6 @@ export async function userSignupApi(data) {
 export async function userLogOutApi() {
   try {
     const res = await apiClient.post("/auth/logout/");
-    console.log(res);
     return { status: res.status, res: res.data };
   } catch (error) {
     return { status: error.response.status, res: error.response.data };

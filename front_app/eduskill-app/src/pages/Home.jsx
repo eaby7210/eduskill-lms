@@ -1,12 +1,11 @@
 // import React from 'react';
 
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 import { CategoryCard } from "../assets/components/Cards";
 import Hero from "../assets/components/Hero";
 
 const Home = () => {
-  const user = useSelector((state) => state.user);
-  console.log(user);
+  // const user = useSelector((state) => state.user);
   return (
     <div>
       <Hero />

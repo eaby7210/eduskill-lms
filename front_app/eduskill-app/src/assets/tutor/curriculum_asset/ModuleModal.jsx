@@ -13,7 +13,6 @@ export default function ModuleModal({ selectedModule, closeModuleModal }) {
   const [submitting, setSubmitting] = useState(false);
   const params = useParams();
   const revalidator = useRevalidator();
-  console.log(selectedModule);
   async function handleModuleUpdate(e) {
     e.preventDefault();
     setSubmitting(true);
@@ -50,7 +49,6 @@ export default function ModuleModal({ selectedModule, closeModuleModal }) {
         title: formData.get("title"),
         description: formData.get("description"),
       };
-      console.log(params);
       const res = await apiClient.post(
         `/tutor/courses/${params.slug}/modules/`,
         moduleData

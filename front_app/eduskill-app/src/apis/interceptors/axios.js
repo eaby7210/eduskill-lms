@@ -11,21 +11,10 @@ const apiClient = axios.create({
   },
 });
 
-// function getCsrfToken() {
-//   const value = `; ${document.cookie}`;
-//   const parts = value.split(`; csrftoken=`);
-//   if (parts.length === 2) return parts.pop().split(";").shift();
-//   return null;
-// }
-
-// function setCsrfCookie() {
-//   return axios.get("http://localhost:8000/csrf/", { withCredentials: true });
-// }
-
 apiClient.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("access_token");
-    // console.log(accessToken);
+
     if (accessToken) {
       config.headers["Authorization"] = `Bearer ${accessToken}`;
     }
@@ -53,7 +42,7 @@ apiClient.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem("refresh_token");
-        // console.log(refreshToken);
+
         const response = await axios.post(
           "http://localhost:8000/auth/token/refresh/",
           {

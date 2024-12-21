@@ -79,7 +79,6 @@ export function Component() {
 
   useEffect(() => {
     if (lastJsonMessage) {
-      console.log(lastJsonMessage);
       if (lastJsonMessage?.type === "chat_message") {
         const newMsg = {
           id: Date.now(),
@@ -104,7 +103,6 @@ export function Component() {
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
-    console.log(newMessage);
     // Send to WebSocket
     sendJsonMessage({
       action: "chat_message",

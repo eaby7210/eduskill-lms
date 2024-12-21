@@ -67,12 +67,9 @@ class UserRegisterSerializer(RegisterSerializer):
         return data
 
     def custom_signup(self, request, user):
-        # print(request.data)
         user.first_name = self.cleaned_data.get('first_name')
         user.last_name = self.cleaned_data.get('last_name')
         # user.role = self.cleaned_data.get('role')
-        # print(user.first_name)
-        # print(user.last_name)
         user.save()
 
 

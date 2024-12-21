@@ -38,7 +38,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
                 if ext == "txt" and not bodies:
                     # We need at least one body
                     raise
-        print(f"{subject} {to}")
+
         send_emails.apply_async(args=[subject, bodies, from_email, to])
 
     def send_confirmation_mail(self, request, emailconfirmation, signup):

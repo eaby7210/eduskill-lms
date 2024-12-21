@@ -36,12 +36,10 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // console.log(form);
     const res = await userSignupApi(form);
     if (parseInt(res.status / 100) != 2) {
       setErrors(res.res);
     } else {
-      //   console.log(res.res);
       localStorage.setItem("access_token", res.res.access);
       localStorage.setItem("refresh_token", res.res.refresh);
       dispatch(setUser(res.res.user));

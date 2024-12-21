@@ -8,7 +8,6 @@ export default function CoursePageForm() {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
   const course = courseData;
-  console.log(course.status);
   const categories = useContext(appContext).appState.categories;
   function openCourseModal() {
     document.getElementById("my_modal_1").showModal();
