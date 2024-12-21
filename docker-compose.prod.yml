@@ -1,0 +1,54 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: backend
+    container_name: eduskill1
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DATABASE_HOST=host.docker.internal
+      - DATABASE_PORT=5432
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./front_app/eduskill-app
+      dockerfile: Dockerfile.prod
+    container_name: eduskillf
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    container_name: redis1
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 60s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
+
+  # celery:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #     target: celery
+  #   container_name: celery1
+  #   volumes:
+  #     - ./backend:/app
+  #   depends_on:
+  #     - backend
+  #     - redis
+  #   environment:
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #   restart: unless-stopped

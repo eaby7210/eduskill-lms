@@ -1,0 +1,74 @@
+# Build stage
+FROM python:3.12-alpine AS builder
+
+# Set build environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /build
+
+# # Install build dependencies
+# RUN apk update && \
+#     apk add --no-cache gcc musl-dev libffi-dev postgresql-dev libmagic python3-dev build-base \
+#     ffmpeg && \
+#     rm -rf /var/cache/apk/*
+
+# Install pipenv and dependencies
+RUN pip install --no-cache-dir pipenv
+
+# Copy dependency files
+COPY Pipfile Pipfile.lock ./
+
+# Install dependencies into /build
+RUN pipenv install --system --deploy --ignore-pipfile
+
+# Final stage
+FROM python:3.12-alpine
+
+# Set production environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DJANGO_SETTINGS_MODULE=eduskill.settings \
+    DJANGO_PRODUCTION=1
+
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    postgresql-libs \
+    ffmpeg \
+    libmagic \
+    && rm -rf /var/cache/apk/*
+
+# Create app user
+RUN addgroup -S django && \
+    adduser -S django -G django
+
+# Copy Python packages from builder
+COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/python3.12/site-packages/
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
+
+# Copy project files
+COPY --chown=django:django . .
+
+# Create media and static directories
+RUN mkdir -p /app/media /app/static && \
+    chown -R django:django /app/media /app/static
+
+# Switch to non-root user
+USER django
+
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
+# Create separate targets for web and celery
+FROM scratch AS web
+COPY --from=0 / /
+EXPOSE 8000
+CMD ["sh", "-c", "python manage.py migrate && uvicorn eduskill.asgi:application --host 0.0.0.0 --port 8000 --workers 2 --limit-max-requests 1000"]
+
+FROM scratch AS celery
+COPY --from=0 / /
+CMD ["celery", "-A", "eduskill.celery:app", "worker", "--loglevel=info", "--concurrency=2", "--max-tasks-per-child=100", "--optimization=fair"]

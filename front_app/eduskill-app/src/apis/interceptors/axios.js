@@ -1,7 +1,7 @@
 import axios from "axios";
 import store from "../redux/store";
 import { userLogout } from "../redux/User/userSlice";
-export const dn = "localhost:8000";
+export const dn = import.meta.env.VITE_BASE_URL || "localhost:8000";
 export const baseurl = `http://${dn}`;
 export const wsUrl = `ws://${dn}`;
 const apiClient = axios.create({

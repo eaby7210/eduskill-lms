@@ -4,42 +4,29 @@ import store from "../redux/store";
 import { setWishList } from "../redux/Wishlist/wishSlice";
 
 async function getCart() {
-  try {
-    const res = await apiClient.get("/user/cart/");
-    console.log(res);
-    if (res.status >= 200 && res.status < 300) {
-      store.dispatch(setCart(res.data));
-    }
-  } catch (error) {
-    console.log(error);
-    throw new Error(`Error in Fetching Cart: ${error.message}`);
+  const res = await apiClient.get("/user/cart/");
+  console.log(res);
+  if (res.status >= 200 && res.status < 300) {
+    store.dispatch(setCart(res.data));
   }
 }
 
 async function getWishList() {
-  try {
-    const res = await apiClient.get("/user/wishlist/");
+  const res = await apiClient.get("/user/wishlist/");
 
-    if (res.status >= 200 && res.status < 300) {
-      store.dispatch(setWishList(res.data));
-    }
-  } catch (error) {
-    console.log(error);
-    throw new Error(`Error in Fetching Whishlist: ${error.message} `);
+  if (res.status >= 200 && res.status < 300) {
+    store.dispatch(setWishList(res.data));
   }
 }
 
 export async function getUser() {
-  try {
-    const res = await apiClient.get("/auth/user/");
-    if (res.status >= 200 && res.status < 300) {
-      getCart();
-      getWishList();
-    }
-    return res.data;
-  } catch {
-    return null;
+  const res = await apiClient.get("/auth/user/");
+  if (res.status >= 200 && res.status < 300) {
+    getCart();
+    getWishList();
+    await Promise.allSettled([getCart(), getWishList()]);
   }
+  return res.data;
 }
 
 export async function userLoginApi(data) {
@@ -72,24 +59,22 @@ export async function userLogOutApi() {
 }
 
 export async function Categorylist() {
-  try {
-    const res = await apiClient.get("/category/");
-    // console.log(res);
+  const res = await apiClient.get("/category/");
 
-    return res.data;
-  } catch (error) {
-    const er = error.response.data ? error.response.data : "Error Occured";
-    throw er;
-    // return { status: error.response.status, res: error.response.data };
-  }
+  return res.data;
 }
 
 export async function InitialLoad() {
-  const category = await Categorylist();
-  const user = await getUser();
-  const res = { category, user };
-  return res;
+  const [userResult, categoryResult] = await Promise.allSettled([
+    getUser(),
+    Categorylist(),
+  ]);
+  return {
+    user: userResult.status === "fulfilled" ? userResult.value : null,
+    category: categoryResult.status === "fulfilled" ? categoryResult.value : [],
+  };
 }
+
 export async function postCartItem(id) {
   const res = await apiClient.post("/user/cart/", { course: id });
   return res.data;

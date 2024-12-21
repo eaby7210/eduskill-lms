@@ -28,8 +28,12 @@ SECRET_KEY = \
     'django-insecure-+7cnx-ssy5z9==&zcvhxcz=o5#7q70oit-rr@na(a0jlo*m9vd'
 DEBUG = False
 
-ALLOWED_HOSTS = ["localhost",
-                 "127.0.0.1", "http://localhost:8000"]
+ALLOWED_HOSTS = []
+if DEBUG:
+    ALLOWED_HOSTS = ["localhost",
+                     "127.0.0.1", "http://localhost:8000"]
+else:
+    ALLOWED_HOSTS = ["eduskill.fun", "www.eduskill.fun"]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -64,7 +68,6 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'django_extensions',
     'channels',
     'storages',
     # myapps
