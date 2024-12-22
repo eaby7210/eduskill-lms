@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import django
 from django.core.asgi import get_asgi_application
@@ -8,9 +9,14 @@ from core.consumers import NotificationConsumer
 from students.consumers import ChatConsumer, CourseChatConsumer
 from core.middleware import JWTAuthMiddleware
 
-# Configure logging before importing other modules
-logging.basicConfig(level=logging.DEBUG, 
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# Configure logging to output to stderr
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stderr)
+    ]
+)
 logger = logging.getLogger(__name__)
 
 # Set Django settings module
