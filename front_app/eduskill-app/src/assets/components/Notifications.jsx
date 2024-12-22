@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import useWebSocket from "react-use-websocket";
-import apiClient, { dn } from "../../apis/interceptors/axios";
+import apiClient, { wsUrl } from "../../apis/interceptors/axios";
 import NotificationIcon from "../svgs/NotificationIcon";
 
 import { useErrorHandler, useNavigationState } from "../../hooks/Hooks";
@@ -22,9 +22,7 @@ const Notifications = () => {
   });
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const WS_URL = `${
-    window.location.protocol === "https:" ? "wss:" : "ws:"
-  }//${dn}/ws/notification/`;
+  const WS_URL = `${wsUrl}/ws/notification/`;
 
   const { lastMessage } = useWebSocket(WS_URL, {
     queryParams: { token: localStorage.getItem("access_token") },
