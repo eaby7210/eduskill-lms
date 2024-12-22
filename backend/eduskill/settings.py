@@ -28,21 +28,20 @@ SECRET_KEY = \
     'django-insecure-+7cnx-ssy5z9==&zcvhxcz=o5#7q70oit-rr@na(a0jlo*m9vd'
 DEBUG = False
 
-ALLOWED_HOSTS = []
-if DEBUG:
-    ALLOWED_HOSTS = ["localhost",
-                     "127.0.0.1", "http://localhost:8000"]
-else:
-    ALLOWED_HOSTS = ["eduskill.fun", "www.eduskill.fun"]
+ALLOWED_HOSTS = ["localhost",
+                 "127.0.0.1", "http://localhost:8000", "eduskill.fun", "www.eduskill.fun"]
+
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5173", "eduskill.fun", "www.eduskill.fun",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5173',
+    'http://localhost:5173',   'eduskill.fun',
+    'www.eduskill.fun',
 ]
+
 
 # CORS_ALLOW_CREDENTIALS = True
 
