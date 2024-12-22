@@ -25,14 +25,15 @@ def get_user_from_token(token):
 class JWTAuthMiddleware(BaseMiddleware):
     async def __call__(self, scope, receive, send):
         # Log the incoming WebSocket connection details
-        logger.info(f"WebSocket connection attempt. Scope: {scope}")
+        logger.info(f"WebSocket connection attempt. Scope keys: {scope.keys()}")
+        logger.info(f"WebSocket connection type: {scope.get('type')}")
 
         # Get query parameters
         query_string = scope.get('query_string', b'').decode()
         query_params = parse_qs(query_string)
         
         # Log query parameters for debugging
-        logger.debug(f"WebSocket query parameters: {query_params}")
+        logger.info(f"WebSocket query parameters: {query_params}")
 
         # Get token from query parameters
         token = query_params.get('token', [None])[0]
