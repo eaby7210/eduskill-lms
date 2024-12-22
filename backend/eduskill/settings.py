@@ -29,16 +29,18 @@ SECRET_KEY = \
 DEBUG = False
 
 ALLOWED_HOSTS = ["localhost",
-                 "127.0.0.1", "http://localhost:8000", "eduskill.fun", "www.eduskill.fun"]
+                 "127.0.0.1", "http://localhost:8000",
+                 "eduskill.fun", "www.eduskill.fun"]
 
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "http://127.0.0.1:5173", "https://eduskill.fun", "https://www.eduskill.fun",
+    "http://127.0.0.1:5173",
+    "https://eduskill.fun", "https://www.eduskill.fun",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5173',   
+    'http://localhost:5173',
     'https://eduskill.fun',
     'https://www.eduskill.fun',
 ]
@@ -295,14 +297,14 @@ CHANNEL_LAYERS = {
 }
 
 # Logging Configuration for Docker and Production
-import os
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'format': '{levelname} {asctime} {module}\
+                {process:d} {thread:d} {message}',
             'style': '{',
         },
         'simple': {
