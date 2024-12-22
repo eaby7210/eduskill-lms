@@ -34,7 +34,7 @@ ALLOWED_HOSTS = ["localhost",
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "http://127.0.0.1:5173", "eduskill.fun", "www.eduskill.fun",
+    "http://127.0.0.1:5173", "https://eduskill.fun", "https://www.eduskill.fun",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
