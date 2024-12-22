@@ -38,8 +38,9 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5173',   'eduskill.fun',
-    'www.eduskill.fun',
+    'http://localhost:5173',   
+    'https://eduskill.fun',
+    'https://www.eduskill.fun',
 ]
 
 
