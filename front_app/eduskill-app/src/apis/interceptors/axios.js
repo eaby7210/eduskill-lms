@@ -6,9 +6,10 @@ const protocol = window.location.protocol === "https:" ? "https" : "http";
 export const dn = import.meta.env.VITE_BASE_URL || "localhost:8000";
 export const baseurl = `${protocol}://${dn}`;
 
-export const wsUrl = `${protocol === "https" ? "wss" : "ws"}://${
-  import.meta.env.VITE_BASE_URL.replace("/api", "") || "localhost:8000"
-}`;
+export const wsUrl = `${protocol === "https" ? "wss" : "ws"}://${dn.replace(
+  "/api",
+  ""
+)}`;
 // export const wsUrl = `${"ws"}://${dn}`;
 const apiClient = axios.create({
   baseURL: baseurl,
