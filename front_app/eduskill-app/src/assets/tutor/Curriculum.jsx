@@ -12,7 +12,7 @@ import {
   useRevalidator,
 } from "react-router-dom";
 import apiClient from "../../apis/interceptors/axios";
-import { useErrorHandler } from "../../hooks/Hooks";
+// import { useErrorHandler } from "../../hooks/Hooks";
 import appContext from "../../apis/Context";
 
 export default function Curriculum() {
@@ -22,7 +22,7 @@ export default function Curriculum() {
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const course = courseData;
-  const handleError = useErrorHandler();
+  // const handleError = useErrorHandler();
   const [submitting, setSubmitting] = useState(false);
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
@@ -44,7 +44,8 @@ export default function Curriculum() {
         navigate(`/tutor/courses/${course.slug}/`);
       }
     } catch (error) {
-      handleError(error);
+      // handleError(error);
+      console.log(error);
     }
     setSubmitting(false);
   }
