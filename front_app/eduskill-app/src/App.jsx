@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import Header from "./assets/Header";
 import Footer from "./assets/Footer";
 import appContext, { navigationReducer } from "./apis/Context";

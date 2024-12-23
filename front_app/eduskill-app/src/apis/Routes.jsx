@@ -4,8 +4,8 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "../App.jsx";
 import AdminApp from "../AdminApp.jsx";
 import Error from "../assets/Error.jsx";
-import NewCourse from "../assets/tutor/NewCourse.jsx";
 
+const NewCourse = lazy(() => import("../assets/tutor/NewCourse.jsx"));
 import { InitialLoad } from "./services/apiUser.js";
 import {
   getCourse,
@@ -16,7 +16,7 @@ import {
   tutorDashboard,
   updateCourse,
 } from "./services/apiCourses.js";
-import CourseForm from "../assets/tutor/CourseForm.jsx";
+const CourseForm = lazy(() => import("../assets/tutor/CourseForm.jsx"));
 import { adminDashboard, getCourses, getUsers } from "./services/apiAdmin.js";
 
 const Home = lazy(() => import("../pages/Home.jsx"));
@@ -31,8 +31,7 @@ const CourseManage = lazy(() => import("../assets/admin/CourseManage.jsx"));
 
 const TDashboard = lazy(() => import("../assets/tutor/Dashboard.jsx"));
 const Courses = lazy(() => import("../assets/tutor/Courses.jsx"));
-
-import CoursePage from "../assets/tutor/CoursePage.jsx";
+const CoursePage = lazy(() => import("../assets/tutor/CoursePage.jsx"));
 const CoursePageForm = lazy(() => import("../assets/tutor/CoursePageForm.jsx"));
 const Curriculum = lazy(() => import("../assets/tutor/Curriculum.jsx"));
 const Publish = lazy(() => import("../assets/tutor/Publish.jsx"));
@@ -259,17 +258,29 @@ const router = createBrowserRouter([
             children: [
               {
                 path: "",
-                element: <CoursePageForm />,
+                element: (
+                  <Suspense fallback={<span>Loading...</span>}>
+                    <CoursePageForm />
+                  </Suspense>
+                ),
                 loader: getCourse,
               },
               {
                 path: "curriculum/",
-                element: <Curriculum />,
+                element: (
+                  <Suspense fallback={<span>Loading...</span>}>
+                    <Curriculum />
+                  </Suspense>
+                ),
                 loader: getTutorCourseModules,
               },
               {
                 path: "publish/",
-                element: <Publish />,
+                element: (
+                  <Suspense fallback={<span>Loading...</span>}>
+                    <Publish />
+                  </Suspense>
+                ),
               },
               {
                 path: "chat",
@@ -285,12 +296,20 @@ const router = createBrowserRouter([
           },
           {
             path: "courses/new",
-            element: <NewCourse />,
+            element: (
+              <Suspense fallback={<span>Loading...</span>}>
+                <NewCourse />
+              </Suspense>
+            ),
             action: postCourse,
             children: [
               {
                 path: "",
-                element: <CourseForm />,
+                element: (
+                  <Suspense fallback={<span>Loading...</span>}>
+                    <CourseForm />
+                  </Suspense>
+                ),
               },
             ],
           },
