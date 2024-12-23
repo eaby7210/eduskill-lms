@@ -303,14 +303,14 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module}\
-                {process:d} {thread:d} {message}',
+            'format': '{levelname} {module} {message}',
             'style': '{',
         },
         'simple': {
             'format': '{levelname} {message}',
             'style': '{',
         },
+
     },
     'handlers': {
         'console': {
@@ -318,14 +318,22 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
+        'null': {
+            'class': 'logging.NullHandler',
+        },
     },
     'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'channels': {
+        # 'django': {
+        #     'handlers': ['console'],
+        #     'level': 'INFO',
+        #     'propagate': True,
+        # },
+        # 'channels': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,
+        # },
+        'tutor': {
             'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True,
@@ -345,9 +353,29 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        '': {  # Root logger
-            'handlers': ['console'],
-            'level': 'DEBUG',
+        'boto3': {
+            'handlers': ['null'],
+            'level': 'INFO',
+            'propagate': False,
         },
+        'botocore': {
+            'handlers': ['null'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'urllib3': {
+            'handlers': ['null'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        's3transfer': {
+            'handlers': ['null'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # '': {  # Root logger
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        # },
     },
 }

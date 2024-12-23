@@ -10,6 +10,11 @@ from .models import (
     TextContent, VideoContent, TSFile
 )
 
+import logging
+# import json
+
+logger = logging.getLogger(__name__)
+
 
 class TextContentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -53,22 +58,27 @@ class VideoContentSerializer(serializers.ModelSerializer):
                 ts_files = obj.ts_files.all()
                 ts_file_map = {ts_file.ts_file.name.split(
                     '/')[-1]: ts_file.ts_file.url for ts_file in ts_files}
-
+                logger.debug(ts_file_map)
                 with open(local_hls_path, 'r') as m3u8_file:
                     lines = m3u8_file.readlines()
-
+                # logger.debug(lines)
                 with open(local_hls_path, 'w') as m3u8_file:
                     for line in lines:
                         if line.endswith('.ts\n'):
+                            logger.info("line")
+                            logger.info(line)
                             ts_file = line.strip()
                             key = f'hls/{obj.id}/{ts_file}'
-                            url = ts_file_map.get(ts_file, ts_file)
-                            m3u8_file.write(url + '\n')
+                            line = ts_file_map.get(ts_file, ts_file)
+                            logger.info(line)
+                            m3u8_file.write(line + '\n')
                         else:
                             m3u8_file.write(line)
-
+                # logger.debug(lines)
                 with open(local_hls_path, 'r') as m3u8_file:
                     hls_content = m3u8_file.read()
+
+                logger.debug(hls_content)
                 return hls_content
             except Exception as e:
                 print(e)
