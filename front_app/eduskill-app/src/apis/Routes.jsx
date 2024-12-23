@@ -263,7 +263,6 @@ const router = createBrowserRouter([
                     <CoursePageForm />
                   </Suspense>
                 ),
-                loader: getCourse,
               },
               {
                 path: "curriculum/",
