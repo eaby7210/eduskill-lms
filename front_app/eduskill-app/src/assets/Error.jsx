@@ -1,15 +1,10 @@
 import { useRouteError, useNavigate } from "react-router-dom";
-import { useErrorHandler } from "../hooks/Hooks";
-import { useEffect } from "react";
+// import { useErrorHandler } from "../hooks/Hooks";
 
 const Error = () => {
   const error = useRouteError();
-  const handleError = useErrorHandler();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    handleError(error);
-  }, [error, handleError]);
+  const navigate = useNavigate();
 
   const getErrorMessage = () => {
     if (error.status === 404) {
