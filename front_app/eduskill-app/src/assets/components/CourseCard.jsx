@@ -7,11 +7,14 @@ import Heart from "../svgs/Heart";
 import { useDispatch, useSelector } from "react-redux";
 import { addCartItem, removeCartItem } from "../../apis/redux/Cart/cartSlice";
 import { addItem, removeItem } from "../../apis/redux/Wishlist/wishSlice";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { postCartItem, postWishItem } from "../../apis/services/apiUser";
+import appContext from "../../apis/Context";
 
 export default function CourseCard({ item }) {
+  const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const { addToast } = useContext(appContext);
   const wishList = useSelector((state) => state.wishList).wishList;
   const cart = useSelector((state) => state.cart).cart;
   const [isCartItem, setCartItem] = useState(false);
@@ -43,9 +46,17 @@ export default function CourseCard({ item }) {
       if (isWishItem) {
         dispatch(removeItem(item));
         setWishList(false);
+        addToast({
+          type: "info",
+          messsage: "Item Removed from cart",
+        });
       } else {
         dispatch(addItem(item));
         setWishList(true);
+        addToast({
+          type: "info",
+          messsage: "Item added from cart",
+        });
       }
     } catch (error) {
       alert(`Error: ${error.messsage}`);
@@ -88,12 +99,19 @@ export default function CourseCard({ item }) {
             <Link to={`/courses/${item.slug}`} className="btn btn-primary">
               View Course
             </Link>
-            <a className="btn btn-ghost" onClick={() => handleWishItem()}>
-              <Heart h={"h-8"} w={"w-8"} indicator={isWishItem} />
-            </a>
-            <button className="btn btn-ghost" onClick={() => handleCartItem()}>
-              <Cart h={"h-8"} w={"w-8"} indicator={isCartItem} />
-            </button>
+            {user?.pk && (
+              <>
+                <a className="btn btn-ghost" onClick={() => handleWishItem()}>
+                  <Heart h={"h-8"} w={"w-8"} indicator={isWishItem} />
+                </a>
+                <button
+                  className="btn btn-ghost"
+                  onClick={() => handleCartItem()}
+                >
+                  <Cart h={"h-8"} w={"w-8"} indicator={isCartItem} />
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

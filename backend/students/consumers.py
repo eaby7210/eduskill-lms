@@ -1,5 +1,8 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
@@ -81,10 +84,12 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             content=content
         )
         receiver = self.scope['user']
-        if room.enrollment.course.teacher.user.id == self.scope['user']:
+        logger.info(f"scope user: ${self.scope['user']}")
+        if room.enrollment.course.teacher.user == self.scope['user']:
             receiver = room.enrollment.student.user
         else:
             receiver = room.enrollment.course.teacher.user
+        logger.info(f"reciever: ${receiver}")
         Notification.objects.create(
             sender=self.scope['user'],
             receiver=receiver,

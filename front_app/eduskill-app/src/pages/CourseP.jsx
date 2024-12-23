@@ -20,6 +20,7 @@ export async function loader({ params }) {
 }
 
 export function Component() {
+  const user = useSelector((state) => state.user);
   const handleError = useErrorHandler();
   const { addToast } = useContext(appContext);
   const navigate = useNavigate();
@@ -37,18 +38,22 @@ export function Component() {
 
   async function handleEnroll() {
     try {
-      if (!course?.affected_price > 0) {
-        const res = await apiClient.post(`/courses/${course?.slug}/enroll/`);
-        if (res.status >= 200 && res.status < 300) {
-          addToast({
-            type: "success",
-            message: res.data.message,
-          });
-          navigate(`/courses/${course?.slug}`);
-        } else {
-          handleCartItem();
-          navigate("/checkout");
+      if (user?.pk) {
+        if (!course?.affected_price > 0) {
+          const res = await apiClient.post(`/courses/${course?.slug}/enroll/`);
+          if (res.status >= 200 && res.status < 300) {
+            addToast({
+              type: "success",
+              message: res.data.message,
+            });
+            navigate(`/courses/${course?.slug}`);
+          } else {
+            handleCartItem();
+            navigate("/checkout");
+          }
         }
+      } else {
+        throw { message: "Login to Enroll a course" };
       }
     } catch (error) {
       handleError(error);
@@ -133,16 +138,26 @@ export function Component() {
                       </span>
                     )}
                   </p>
-                  <div className="card-actions">
-                    <button className="btn btn-ghost" onClick={handleCartItem}>
-                      <Cart h={"h-7"} w={"w-7"} indicator={isCartItem} />{" "}
-                      {isCartItem ? "Remove from Cart" : "Add to Cart"}
-                    </button>
-                    <button className="btn btn-ghost" onClick={handleWishItem}>
-                      <Heart h={"h-7"} w={"w-7"} indicator={isWishItem} />{" "}
-                      {isWishItem ? "Remove from WishList" : "Add to WishList"}
-                    </button>
-                  </div>
+                  {user?.pk && (
+                    <div className="card-actions">
+                      <button
+                        className="btn btn-ghost"
+                        onClick={handleCartItem}
+                      >
+                        <Cart h={"h-7"} w={"w-7"} indicator={isCartItem} />{" "}
+                        {isCartItem ? "Remove from Cart" : "Add to Cart"}
+                      </button>
+                      <button
+                        className="btn btn-ghost"
+                        onClick={handleWishItem}
+                      >
+                        <Heart h={"h-7"} w={"w-7"} indicator={isWishItem} />{" "}
+                        {isWishItem
+                          ? "Remove from WishList"
+                          : "Add to WishList"}
+                      </button>
+                    </div>
+                  )}
                 </>
               ) : (
                 <p className="text-2xl font-bold">Free</p>

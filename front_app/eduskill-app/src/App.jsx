@@ -2,17 +2,17 @@
 import Header from "./assets/Header";
 import Footer from "./assets/Footer";
 import appContext, { navigationReducer } from "./apis/Context";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUser, userNomad } from "./apis/redux/User/userSlice";
-import { Outlet, useLoaderData, useNavigation } from "react-router-dom";
+import { Outlet, useLoaderData } from "react-router-dom";
 import { useEffect, useReducer, useState } from "react";
 import Toast from "./assets/components/Toast";
 // import { useErrorHandler } from "./hooks/Hooks";
 
 function App() {
+  const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const data = useLoaderData();
-  const navigation = useNavigation();
   const [navigationState, navigationDispatch] = useReducer(navigationReducer, {
     state: "idle",
     message: null,
@@ -24,7 +24,7 @@ function App() {
   // const handleError = useErrorHandler();
 
   useEffect(() => {
-    const initializeApp = async () => {
+    const initializeApp = () => {
       try {
         if (data?.user) {
           dispatch(setUser(data.user));
@@ -40,9 +40,10 @@ function App() {
         setIsLoading(false);
       }
     };
-
-    initializeApp();
-  }, [data.user, dispatch]);
+    if (user.initial === true) {
+      initializeApp();
+    }
+  });
 
   function removeToast(id) {
     setToast((toasts) => toasts.filter((toast) => toast.id != id));
@@ -64,7 +65,7 @@ function App() {
     }, time);
   }
 
-  if (isLoading || navigation.state === "loading") {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-base-200">
         <div className="text-center">
