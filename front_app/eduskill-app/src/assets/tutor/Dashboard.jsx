@@ -1,9 +1,11 @@
 // import React from "react";
-import { useLoaderData, Link } from "react-router-dom";
+import { useLoaderData, Link, useNavigation } from "react-router-dom";
 import Headline from "../admin/components/Headline";
 
 export default function Dashboard() {
   const data = useLoaderData();
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -19,6 +21,81 @@ export default function Dashboard() {
         return "text-base-content/60";
     }
   };
+
+  if (isLoading) {
+    return (
+      <>
+        <Headline headline={"Teacher Dashboard"} />
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+          {/* Courses Stats Skeleton */}
+          <div className="card bg-base-100 shadow-xl">
+            <div className="card-body">
+              <div className="flex flex-col">
+                <div className="h-8 w-32 skeleton mb-4"></div>
+                <div className="h-12 w-16 skeleton mb-4"></div>
+                <div className="space-y-2">
+                  <div className="h-4 w-24 skeleton"></div>
+                  <div className="h-4 w-20 skeleton"></div>
+                  <div className="h-4 w-28 skeleton"></div>
+                </div>
+                <div className="h-8 w-32 skeleton mt-4"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Enrollments Stats Skeleton */}
+          <div className="card bg-base-100 shadow-xl">
+            <div className="card-body">
+              <div className="flex flex-col">
+                <div className="h-8 w-40 skeleton mb-4"></div>
+                <div className="h-12 w-16 skeleton mb-4"></div>
+                <div className="space-y-2">
+                  <div className="h-4 w-24 skeleton"></div>
+                  <div className="h-4 w-20 skeleton"></div>
+                  <div className="h-4 w-28 skeleton"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Reviews Stats Skeleton */}
+          <div className="card bg-base-100 shadow-xl">
+            <div className="card-body">
+              <div className="flex flex-col">
+                <div className="h-8 w-36 skeleton mb-4"></div>
+                <div className="flex items-baseline gap-2">
+                  <div className="h-12 w-16 skeleton"></div>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <div key={star} className="h-4 w-4 skeleton"></div>
+                    ))}
+                  </div>
+                </div>
+                <div className="h-4 w-32 skeleton mt-4"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Recent Reviews Section Skeleton */}
+        <section className="mb-8">
+          <div className="card bg-base-100 shadow-xl">
+            <div className="card-body">
+              <div className="h-8 w-40 skeleton mb-4"></div>
+              <div className="space-y-4">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="border-b pb-4">
+                    <div className="h-4 w-3/4 skeleton mb-2"></div>
+                    <div className="h-4 w-1/2 skeleton"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      </>
+    );
+  }
 
   return (
     <>

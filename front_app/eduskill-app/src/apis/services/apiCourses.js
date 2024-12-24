@@ -90,12 +90,16 @@ async function getTutorCourseModules({ params }) {
   const slug = params.slug;
   const urlstr = `/tutor/courses/${slug}/modules`;
   const res = await apiClient.get(urlstr);
-
+  console.log(res);
+  console.log(import.meta.env.VITE_BASE_URL);
   return res?.data ? res.data : null;
 }
 
 async function tutorDashboard() {
   const res = await apiClient.get("/tutor/dashboard");
+  console.log(res);
+  console.log(import.meta.env.VITE_BASE_URL);
+
   return res.data;
 }
 
