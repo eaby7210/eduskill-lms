@@ -31,7 +31,7 @@ export default function Curriculum() {
   const [selectedLesson, setSelectedLesson] = useState(null);
 
   async function handlePublish() {
-    const urlStr = `/tutor/courses/${course.slug}/publish/`;
+    const urlStr = `/tutor/courses/${course?.slug}/publish/`;
     setSubmitting(true);
     try {
       const res = await apiClient.post(urlStr);
@@ -41,7 +41,7 @@ export default function Curriculum() {
           type: "success",
           message: "Course Published Successfully",
         });
-        navigate(`/tutor/courses/${course.slug}/`);
+        navigate(`/tutor/courses/${course?.slug}/`);
       }
     } catch (error) {
       // handleError(error);
@@ -100,8 +100,8 @@ export default function Curriculum() {
       </div>
       {/* Module List */}
       <div>
-        {modules.length > 0 ? (
-          modules.map((module) => (
+        {modules && modules?.length > 0 ? (
+          modules?.map((module) => (
             <ModuleCard
               key={module.id}
               module={module}
@@ -114,9 +114,9 @@ export default function Curriculum() {
           <p>No modules added yet.</p>
         )}
 
-        {modules.length > 0 && (
+        {modules?.length > 0 && (
           <>
-            {course.status === "draft" ? (
+            {course?.status === "draft" ? (
               <button
                 className="btn btn-accent w-full text-xl"
                 onClick={handlePublish}
@@ -124,11 +124,11 @@ export default function Curriculum() {
               >
                 {submitting ? "Please Wait..." : "Publish Course"}
               </button>
-            ) : course.status === "published" ? (
+            ) : course?.status === "published" ? (
               <p className="text-info">Course is published to public</p>
-            ) : course.status === "pending_approval" ? (
+            ) : course?.status === "pending_approval" ? (
               <p className="text-warning">Requested for Approval</p>
-            ) : course.status === "blocked" ? (
+            ) : course?.status === "blocked" ? (
               <p className="text-error">
                 {" "}
                 Course is blocked. Edit the curriculum to Publish again
