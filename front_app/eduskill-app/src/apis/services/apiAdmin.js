@@ -12,7 +12,7 @@ async function getCourses() {
   return res.data;
 }
 async function getCategory(id) {
-  const urlstr = `/myadmin/category/${id}`;
+  const urlstr = `/myadmin/category/${id}/`;
   const res = await apiClient.get(urlstr);
   return res.data;
 }

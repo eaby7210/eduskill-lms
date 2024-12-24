@@ -4,7 +4,7 @@ import apiClient from "../apis/interceptors/axios";
 import { useState } from "react";
 
 export async function loader({ params }) {
-  const res = await apiClient(`/user/order/${params.id}`);
+  const res = await apiClient(`/user/order/${params.id}/`);
   return res.data;
 }
 export function Component() {

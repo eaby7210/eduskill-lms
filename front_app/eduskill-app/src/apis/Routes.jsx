@@ -221,7 +221,7 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: "/tutor",
+        path: "tutor",
         element: (
           <Suspense fallback={<span>Loading...</span>}>
             <AdminApp />

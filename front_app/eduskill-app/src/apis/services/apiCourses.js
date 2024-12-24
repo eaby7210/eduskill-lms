@@ -23,7 +23,7 @@ async function getCourseList({ request }) {
 
 async function getCourse({ params }) {
   const slug = params.slug;
-  const urlstr = `/tutor/courses/${slug}`;
+  const urlstr = `/tutor/courses/${slug}/`;
   const res = await apiClient.get(urlstr);
   return res?.data ? res.data : null;
 }
@@ -88,17 +88,14 @@ async function postCourse({ request }) {
 async function getTutorCourseModules({ params }) {
   //   const url = new URL(request.url);
   const slug = params.slug;
-  const urlstr = `/tutor/courses/${slug}/modules`;
+  const urlstr = `/tutor/courses/${slug}/modules/`;
   const res = await apiClient.get(urlstr);
-  console.log(res);
-  console.log(import.meta.env.VITE_BASE_URL);
+
   return res?.data ? res.data : null;
 }
 
 async function tutorDashboard() {
-  const res = await apiClient.get("/tutor/dashboard");
-  console.log(res);
-  console.log(import.meta.env.VITE_BASE_URL);
+  const res = await apiClient.get("/tutor/dashboard/");
 
   return res.data;
 }
