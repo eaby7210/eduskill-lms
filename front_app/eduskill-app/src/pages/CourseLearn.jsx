@@ -282,6 +282,7 @@ export function Component() {
   const [currentLesson, setCurrentLesson] = useState(
     currentModule?.lessons[0] || null
   );
+  const drawerCheckRef = useRef(null);
 
   const handleLessonComplete = (completedLesson) => {
     // Update the lesson's progress status in the current module
@@ -353,6 +354,12 @@ export function Component() {
     }
   };
 
+  const handleCloseDrawer = () => {
+    if (drawerCheckRef.current) {
+      drawerCheckRef.current.checked = false;
+    }
+  };
+
   const processedModules = useMemo(() => {
     return course.modules.map((module) => ({
       ...module,
@@ -365,6 +372,7 @@ export function Component() {
   const handleLessonSelect = (module, lesson) => {
     setCurrentModule(module);
     setCurrentLesson(lesson);
+    handleCloseDrawer();
   };
 
   return (
@@ -374,6 +382,7 @@ export function Component() {
           id="course-modules-drawer"
           type="checkbox"
           className="drawer-toggle"
+          ref={drawerCheckRef}
         />
 
         {/* Main Lesson Content */}

@@ -14,7 +14,7 @@ import apiClient from "../../apis/interceptors/axios";
 dayjs.extend(relativeTime);
 
 export async function loader({ params }) {
-  const res = await apiClient(`/tutor/chats/?course_slug=${params.slug}/`);
+  const res = await apiClient(`/tutor/chats/?course_slug=${params.slug}`);
   return res.data;
 }
 

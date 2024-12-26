@@ -4,6 +4,7 @@ import Headline from "../admin/components/Headline";
 
 export default function Dashboard() {
   const data = useLoaderData();
+  console.log(data);
   const navigation = useNavigation();
   const isLoading = navigation.state === "loading";
 
@@ -190,14 +191,14 @@ export default function Dashboard() {
       {/* Recent Reviews Section */}
       <section className="mb-8">
         Review section
-        {/* <div className="card bg-base-100 shadow-xl">
+        <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title mb-4">Recent Reviews</h2>
             {data?.reviews.recent_reviews.length > 0 ? (
               <div className="space-y-4">
                 {data?.reviews.recent_reviews.map((review) => (
-                  <div key={data?.review.id} className="border-b pb-4">
-                   
+                  <div key={review.id} className="border-b pb-4">
+                    review
                   </div>
                 ))}
               </div>
@@ -205,7 +206,7 @@ export default function Dashboard() {
               <p className="text-base-content/60">No recent reviews</p>
             )}
           </div>
-        </div> */}
+        </div>
       </section>
     </>
   );
