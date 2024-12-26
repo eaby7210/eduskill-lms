@@ -38,7 +38,12 @@ class UserViewSet(ReadOnlyModelViewSet):
         user = self.get_object()
         user.is_active = not user.is_active  # Toggle activation
         user.save()
-
+        Notification = apps.get_model('core', 'Notification')
+        Notification.objects.create(
+            sender=request.user,
+            receiver=user,
+            message="Your account has been blocked by admin"
+        )
         status_message = 'User activated'\
             if user.is_active else\
             'User deactivated'

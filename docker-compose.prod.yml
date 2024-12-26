@@ -2,7 +2,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
       target: backend
     container_name: eduskill1
     ports:
@@ -38,17 +38,17 @@ services:
       start_period: 30s
       timeout: 10s
 
-  # celery:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #     target: celery
-  #   container_name: celery1
-  #   volumes:
-  #     - ./backend:/app
-  #   depends_on:
-  #     - backend
-  #     - redis
-  #   environment:
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
-  #   restart: unless-stopped
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+      target: celery
+    container_name: celery1
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - backend
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    restart: unless-stopped

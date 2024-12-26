@@ -111,10 +111,9 @@ class CourseViewSet(ModelViewSet):
             Notification.objects.create(
                 sender=request.user,
                 receiver=User.objects.get(is_superuser=True),
-                message=f"Your course '{
+                message=f"A course '{
                     course.title
-                }' has been blocked.Please review the course details,\
-                    And Submit again",
+                }' has been submitted for review and publish",
                 user_role="ADMIN"
             )
 

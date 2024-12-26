@@ -94,7 +94,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             sender=self.scope['user'],
             receiver=receiver,
             message=f"Your have new message from {
-                receiver.username
+                self.scope['user'].username
             }",
         )
         # Update the room's last activity
