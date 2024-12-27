@@ -21,14 +21,15 @@ function App() {
 
   const [appState, setState] = useState({ categories: data?.category });
   // const handleError = useErrorHandler();
-
   useEffect(() => {
     const initializeApp = () => {
       try {
-        if (data?.user) {
-          dispatch(setUser(data.user));
-        } else {
-          dispatch(userNomad());
+        if (user.initial === true) {
+          if (data?.user) {
+            dispatch(setUser(data.user));
+          } else {
+            dispatch(userNomad());
+          }
         }
       } catch {
         addToast({
@@ -39,9 +40,8 @@ function App() {
         setIsLoading(false);
       }
     };
-    if (user.initial === true) {
-      initializeApp();
-    }
+
+    initializeApp();
   });
 
   function removeToast(id) {

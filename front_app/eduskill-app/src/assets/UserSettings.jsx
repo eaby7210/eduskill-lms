@@ -1,13 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
 // import React from 'react'
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Form, redirect, useActionData, useNavigation } from "react-router-dom";
 import apiClient from "../apis/interceptors/axios";
 import store from "../apis/redux/store";
 import { userLogout } from "../apis/redux/User/userSlice";
 import { useSelector } from "react-redux";
-import { usePermissionCheck } from "../hooks/Hooks";
+import { useErrorHandler, usePermissionCheck } from "../hooks/Hooks";
+import appContext from "../apis/Context";
 
 export async function action({ request }) {
   const actionData = await request.formData();
@@ -64,6 +65,8 @@ export function Component() {
 
   const navigation = useNavigation();
   const res = useActionData();
+  const { addToast } = useContext(appContext);
+  const handleerror = useErrorHandler();
   const user = useSelector((state) => state.user);
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
@@ -78,6 +81,23 @@ export function Component() {
       closeProfileModal();
     }
   }, [res]);
+  async function handleEmailVerify() {
+    try {
+      if (!user.email_verified) {
+        const res = await apiClient.post("/auth/register/resend-email/", {
+          email: user.email,
+        });
+        if (res.status >= 200 && res.status < 300) {
+          addToast({
+            type: "info",
+            message: "Email verification link sent to your email",
+          });
+        }
+      }
+    } catch (error) {
+      handleerror(error);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-base-200 p-5">
@@ -108,7 +128,15 @@ export function Component() {
             <strong>Username:</strong> {user?.username}
           </p>
           <p>
-            <strong>Email:</strong> {user?.email}
+            <strong>Email:</strong> {user?.email}{" "}
+            {!user?.email_verified && (
+              <button
+                className="btn btn-sm btn-warning"
+                onClick={handleEmailVerify}
+              >
+                Verify
+              </button>
+            )}
           </p>
           {user?.role === "TUTR" ? (
             <>

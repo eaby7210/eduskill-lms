@@ -1,7 +1,13 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
 import { useState } from "react";
-import { useLoaderData, useParams, Form, useNavigate } from "react-router-dom";
+import {
+  useLoaderData,
+  useParams,
+  Form,
+  useNavigate,
+  useOutletContext,
+} from "react-router-dom";
 import User from "../svgs/User";
 import apiClient from "../../apis/interceptors/axios";
 
@@ -27,6 +33,7 @@ export async function loader({ params }) {
 export function Component() {
   const { reviews, userReview } = useLoaderData();
   const { slug } = useParams();
+  const { courseData } = useOutletContext();
   const navigate = useNavigate();
   const [rating, setRating] = useState(userReview?.rating || 0);
   const [reviewText, setReviewText] = useState(userReview?.review || "");
@@ -116,12 +123,14 @@ export function Component() {
         </div>
 
         {/* Modal Toggle Button */}
-        <button
-          onClick={() => document.getElementById("review_modal").showModal()}
-          className="btn btn-primary btn-outline"
-        >
-          {userReview ? "Edit Review" : "Write a Review"}
-        </button>
+        {courseData?.date_enrolled && (
+          <button
+            onClick={() => document.getElementById("review_modal").showModal()}
+            className="btn btn-primary btn-outline"
+          >
+            {userReview ? "Edit Review" : "Write a Review"}
+          </button>
+        )}
 
         {/* Review Modal */}
         <dialog

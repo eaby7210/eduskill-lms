@@ -35,7 +35,16 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response) => {
-    return response;
+    try {
+      if (!response.headers["content-type"]?.includes("application/json")) {
+        console.warn("Response is not JSON:", response);
+        return Promise.reject(new Error("Expected JSON response from server.")); // Ensure response is valid JSON
+      }
+      return response;
+    } catch (error) {
+      console.error("Invalid JSON response:", error);
+      return Promise.reject(new Error("Invalid JSON response from server."));
+    }
   },
   async (error) => {
     const originalRequest = error.config;
@@ -49,13 +58,14 @@ apiClient.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem("refresh_token");
+        if (!refreshToken) {
+          store.dispatch(userLogout());
+          return apiClient(originalRequest);
+        }
 
-        const response = await axios.post(
-          "http://localhost:8000/auth/token/refresh/",
-          {
-            refresh: refreshToken,
-          }
-        );
+        const response = await axios.post(`${baseurl}/auth/token/refresh/`, {
+          refresh: refreshToken,
+        });
 
         const { access } = response.data;
 
@@ -65,8 +75,8 @@ apiClient.interceptors.response.use(
         originalRequest.headers["Authorization"] = `Bearer ${access}`;
 
         return apiClient(originalRequest);
-      } catch (refreshError) {
-        console.error("Token refresh failed:", refreshError);
+      } catch {
+        // console.error("Token refresh failed:", refreshError);
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         store.dispatch(userLogout());

@@ -10,6 +10,7 @@ import { usePermissionCheck } from "../hooks/Hooks";
 
 const Login = () => {
   const checkPermission = usePermissionCheck();
+
   useEffect(() => {
     checkPermission("/user/", true);
   }, []);

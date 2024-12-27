@@ -26,7 +26,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = \
     'django-insecure-+7cnx-ssy5z9==&zcvhxcz=o5#7q70oit-rr@na(a0jlo*m9vd'
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["localhost",
                  "127.0.0.1", "http://localhost:8000",

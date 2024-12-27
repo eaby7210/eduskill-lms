@@ -4,29 +4,38 @@ import ThemeBtn from "./ThemeBtn";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogout } from "../../apis/redux/User/userSlice";
 import { userLogOutApi } from "../../apis/services/apiUser";
+import { useErrorHandler } from "../../hooks/Hooks";
 
 const NavEnd = () => {
   const user = useSelector((state) => state.user);
   const location = useLocation();
+  const handleError = useErrorHandler();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   async function handleLogout() {
-    await userLogOutApi();
-    dispatch(userLogout());
-    navigate("/login");
+    try {
+      await userLogOutApi();
+      dispatch(userLogout());
+      navigate("/login");
+    } catch (error) {
+      handleError(error);
+    }
   }
   return (
     <>
-      <div className="flex flex-row gap-5 mx-2 py-3">
-        {user.is_superuser && <Link to="/admin">Admin</Link>}
-        {user.teacher_profile?.id ? (
-          <Link to="/tutor">Teacher</Link>
-        ) : (
-          <Link to="/become_tutor">Become Teacher</Link>
-        )}
-        {user.student_profile?.id && <Link to="">My Learnings</Link>}
-      </div>
+      {user?.pk && (
+        <div className="flex flex-row gap-5 mx-2 py-3">
+          {user.is_superuser && <Link to="/admin">Admin</Link>}
+          {user.teacher_profile?.id ? (
+            <Link to="/tutor">Teacher</Link>
+          ) : (
+            <Link to="/become_tutor">Become Teacher</Link>
+          )}
+          {user.student_profile?.id && <Link to="">My Learnings</Link>}
+        </div>
+      )}
+
       <div className="flex flex-row gap-5 mx-2">
         <ThemeBtn />
         {user?.pk && (

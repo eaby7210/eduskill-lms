@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 // import React from 'react'
 
-import { Link, useLoaderData, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom";
 import apiClient from "../apis/interceptors/axios";
 import Cart from "../assets/svgs/Cart";
 import Heart from "../assets/svgs/Heart";
@@ -87,14 +87,6 @@ export function Component() {
       }
     } catch (error) {
       handleError(error);
-    }
-  }
-
-  async function getModules() {
-    try {
-      await apiClient("");
-    } catch {
-      alert("Error in getting modules");
     }
   }
 
@@ -195,6 +187,7 @@ export function Component() {
           name="my_tabs_1"
           role="tab"
           className="tab"
+          onClick={() => navigate("")}
           aria-label="Course Details"
           defaultChecked
         />
@@ -237,7 +230,7 @@ export function Component() {
           name="my_tabs_1"
           role="tab"
           className="tab"
-          onClick={getModules}
+          onClick={() => navigate("")}
           aria-label="Curriculum"
         />
         <div role="tabpanel" className="tab-content p-10">
@@ -283,6 +276,17 @@ export function Component() {
               </div>
             </details>
           ))}
+        </div>
+        <input
+          type="radio"
+          name="my_tabs_1"
+          role="tab"
+          className="tab"
+          onClick={() => navigate("reviews")}
+          aria-label="Reviews"
+        />
+        <div role="tabpanel" className="tab-content p-10">
+          <Outlet context={{ courseData: course }} />
         </div>
       </div>
     </div>

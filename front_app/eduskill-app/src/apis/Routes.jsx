@@ -104,10 +104,10 @@ const router = createBrowserRouter([
         lazy: () => import("../pages/CourseP.jsx"),
         errorElement: <Error />,
         children: [
-          // {
-          //   path: "reviews",
-          //   lazy: () => import("../assets/components/Reviews.jsx"),
-          // },
+          {
+            path: "reviews",
+            lazy: () => import("../assets/components/Reviews.jsx"),
+          },
         ],
       },
       {
