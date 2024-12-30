@@ -10,7 +10,9 @@ export function Component() {
   useEffect(() => {
     const confirmEmail = async () => {
       try {
-        await apiClient.post(`/auth/register/account-confirm-email/${key}/`);
+        await apiClient.post(`/auth/register/account-confirm-email/`, {
+          key: key,
+        });
         setStatus("success");
         // Redirect after a short delay to show success message
         setTimeout(() => {
