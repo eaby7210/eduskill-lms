@@ -36,6 +36,9 @@ const CategoryAddModal = ({
       const formData = new FormData(event.target);
       // Add parent category to form data if selected
       if (parentCategory) {
+        if (formData.has("parent")) {
+          formData.delete("parent");
+        }
         formData.append("parent", parentCategory);
       }
       let res = null;
