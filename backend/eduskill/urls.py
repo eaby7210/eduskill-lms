@@ -10,7 +10,7 @@ import students.urls
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('djadmin/', admin.site.urls),
     path("", include(core.urls)),
     path("", include(tutor.urls)),
     path("", include(students.urls)),
