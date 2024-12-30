@@ -35,16 +35,11 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response) => {
-    try {
-      if (!response.headers["content-type"]?.includes("application/json")) {
-        console.warn("Response is not JSON:", response);
-        return Promise.reject(new Error("Expected JSON response from server.")); // Ensure response is valid JSON
-      }
-      return response;
-    } catch (error) {
-      console.error("Invalid JSON response:", error);
-      return Promise.reject(new Error("Invalid JSON response from server."));
+    if (!response.headers["content-type"]?.includes("application/json")) {
+      console.warn("Response is not JSON:", response);
+      return Promise.reject(new Error("Expected JSON response from server.")); // Ensure response is valid JSON
     }
+    return response;
   },
   async (error) => {
     const originalRequest = error.config;

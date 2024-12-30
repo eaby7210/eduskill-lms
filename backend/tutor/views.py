@@ -488,4 +488,4 @@ class TutorDashboardAPIView(APIView):
             }
         }
 
-        return Response(data, content_type="appllication/json")
+        return Response(data)
