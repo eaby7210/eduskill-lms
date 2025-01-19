@@ -30,7 +30,11 @@ const NavEnd = () => {
           {user.teacher_profile?.id ? (
             <Link to="/tutor">Teacher</Link>
           ) : (
-            <Link to="/become_tutor">Become Teacher</Link>
+            <>
+              {!user.is_superuser && (
+                <Link to="/become_tutor">Become Teacher</Link>
+              )}
+            </>
           )}
           {user.student_profile?.id && <Link to="">My Learnings</Link>}
         </div>

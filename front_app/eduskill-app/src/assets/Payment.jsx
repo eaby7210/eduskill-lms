@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import apiClient from "../apis/interceptors/axios";
 import { useErrorHandler } from "../hooks/Hooks";
+import { clearCart } from "../apis/redux/Cart/cartSlice";
 
 export function Component() {
   const location = useLocation();
@@ -12,7 +13,7 @@ export function Component() {
   const cart = useSelector((state) => state.cart.cart);
   const orderDetails = location.state?.orderDetails;
   const [isLoading, setIsLoading] = useState(false);
-
+  const dispatch = useDispatch();
   // Validate order details and cart
   if (!orderDetails || !cart || cart.length === 0) {
     return (
@@ -62,6 +63,7 @@ export function Component() {
             );
 
             if (verifyResponse.status >= 200 && verifyResponse.status < 300) {
+              dispatch(clearCart());
               navigate("/user/mylearning", {
                 state: { paymentSuccess: true },
               });

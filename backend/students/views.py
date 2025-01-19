@@ -422,7 +422,8 @@ class CourseOpenViewSet(viewsets.ReadOnlyModelViewSet):
         if self.request.user.is_authenticated:
             return Course.objects.select_related("teacher").filter(
                 is_active=True,
-                status=Course.PUBLISHED
+                status=Course.PUBLISHED,
+                category__is_active=True
             ).prefetch_related(
                 Prefetch(
                     'enrolled_courses',
@@ -445,7 +446,8 @@ class CourseOpenViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             return Course.objects.select_related("teacher").filter(
                 is_active=True,
-                status=Course.PUBLISHED
+                status=Course.PUBLISHED,
+                category__is_active=True
             ).annotate(
                 total_reviews=Count('reviews'),
                 average_rating=Avg('reviews__rating')
